@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TNT ALIEN RUMBLE - The Vengeance of Gleep-Glorp (C64 Homage)</title>
+  <meta name="description" content="A 100% operational browser-based beat 'em up inspired by C64 Bop'n Rumble. Play as Gleep-Glorp the alien seeking revenge on Duke Davis!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container" class="c64-frame crt-scanlines">
+    <!-- Game Canvas -->
+    <canvas id="game-canvas" width="960" height="540"></canvas>
+
+    <!-- CRT Screen Shader Overlays -->
+    <div id="crt-overlay" class="crt-overlay"></div>
+    <div id="crt-vignette" class="crt-vignette"></div>
+
+    <!-- UI Overlay / HUD -->
+    <div id="hud-container" class="hud-layer hidden">
+      <!-- Player 1 Status -->
+      <div class="hud-player-box">
+        <div class="hud-avatar-box">
+          <div id="hud-avatar" class="hud-alien-face"></div>
+          <div class="hud-lives-badge"><span id="hud-lives">♥♥♥</span></div>
+        </div>
+        <div class="hud-stats">
+          <div class="hud-name-row">
+            <span class="hud-name">GLEEP-GLORP</span>
+            <span class="hud-score-label">SCORE: <span id="hud-score">000000</span></span>
+          </div>
+          <!-- Health Bar -->
+          <div class="hud-bar-wrapper">
+            <span class="hud-bar-label">HP</span>
+            <div class="hud-bar-track health-track">
+              <div id="hud-hp-bar" class="hud-bar-fill health-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <!-- Cosmic Rage / Super Bar -->
+          <div class="hud-bar-wrapper">
+            <span class="hud-bar-label">UFO</span>
+            <div class="hud-bar-track rage-track">
+              <div id="hud-rage-bar" class="hud-bar-fill rage-fill" style="width: 0%;"></div>
+            </div>
+            <span id="hud-rage-ready" class="hud-ready-flash hidden">SUPER READY! [SPACE]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage & Time Info -->
+      <div class="hud-center-box">
+        <div id="hud-stage-name" class="hud-stage-text">STAGE 1: DOWNTOWN SLUMS</div>
+        <div class="hud-timer-box">TIME: <span id="hud-timer">99</span></div>
+        <div id="hud-go-arrow" class="hud-go-prompt hidden">GO &gt;&gt;&gt;</div>
+      </div>
+
+      <!-- Boss / Target Status -->
+      <div id="hud-boss-box" class="hud-boss-box hidden">
+        <div class="hud-boss-stats">
+          <div class="hud-name-row boss-row">
+            <span id="hud-boss-name" class="hud-boss-name">DUKE DAVIS</span>
+            <span class="hud-boss-sub">BOSS</span>
+          </div>
+          <div class="hud-bar-wrapper">
+            <span class="hud-bar-label">HP</span>
+            <div class="hud-bar-track boss-health-track">
+              <div id="hud-boss-hp-bar" class="hud-bar-fill boss-health-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hud-boss-avatar-box">
+          <div id="hud-boss-avatar" class="hud-boss-face"></div>
+        </div>
+      </div>
+
+      <!-- Combo & Alien Speech Bubble -->
+      <div id="hud-combo-box" class="hud-combo-box hidden">
+        <span id="hud-combo-count" class="combo-num">3</span>
+        <span class="combo-text">HITS!</span>
+      </div>
+
+      <div id="hud-speech-bubble" class="speech-bubble hidden">
+        <div id="hud-speech-text" class="speech-text">BOP 'EM!</div>
+        <div class="speech-tail"></div>
+      </div>
+    </div>
+
+    <!-- STAR WARS ESCAPING TEXT CRAWL INTRO -->
+    <div id="intro-crawl-screen" class="intro-crawl-container hidden">
+      <div class="stars-bg"></div>
+      <div class="intro-crawl-wrapper" id="intro-crawl-wrapper">
+        <div class="intro-main-title">
+          <p class="intro-sub">A long time ago in 1987...</p>
+          <h1 class="intro-head">TNT ALIEN RUMBLE</h1>
+          <p class="intro-episode">EPISODE LXIV: THE OLD MAN'S VENGEANCE</p>
+        </div>
+        <div class="intro-crawl-content">
+          <p>It is a period of interplanetary humiliation.</p>
+          <p>Thirty-nine Earth years ago, elite Gray Alien operative <strong>GLEEP-GLORP</strong> disguised himself as a frail, innocent old man with a wooden walking stick to observe Melbourne's street culture.</p>
+          <p>Out of nowhere, a pumped-up meathead with a legendary mullet and sunglasses named <strong>DUKE DAVIS</strong> strutted down the sidewalk and mercilessly BOPPED him into a trash can for no reason!</p>
+          <p>For decades, Gleep-Glorp stewed in cosmic fury aboard his mothership in Sector 7, mastering forbidden alien martial arts: the Stretchy Headbutt, the Bull Ram, the Flying Belly Flop, and the deadly Ear Twist.</p>
+          <p>Now, Gleep-Glorp has returned to Earth. He will bop through punks, dodge angry handbag-swinging grannies, trip hyperactive poodles, and give Duke the extraterrestrial thrashing of a lifetime before escaping in his flying saucer!</p>
+        </div>
+      </div>
+      <div id="crawl-pause-indicator" class="crawl-pause-indicator hidden">
+        <span>&#10074;&#10074; PAUSED &bull; PRESS [P] OR CLICK TO RESUME</span>
+      </div>
+      <div class="intro-controls-prompt">
+        <button id="btn-crawl-pause" class="crawl-btn"><strong>[P]</strong> PAUSE</button>
+        <button id="btn-crawl-skip" class="crawl-btn"><strong>[SPACE]</strong> SKIP</button>
+      </div>
+    </div>
+
+    <!-- MAIN MENU SCREEN -->
+    <div id="main-menu-screen" class="screen-overlay">
+      <div class="c64-title-badge">COMMODORE 64 HOMAGE</div>
+      <h1 class="game-logo-text">TNT ALIEN<br><span class="logo-highlight">RUMBLE</span></h1>
+      <div class="logo-alien-deco">
+        <div class="alien-idle-preview"></div>
+        <div class="vs-text">VS</div>
+        <div class="duke-idle-preview"></div>
+      </div>
+      <p class="logo-subtext">THE VENGEANCE OF GLEEP-GLORP</p>
+
+      <div class="menu-button-list">
+        <button id="btn-start-game" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> START RUMBLE</button>
+        <button id="btn-practice-mode" class="c64-btn"><span class="btn-bullet">&#9670;</span> DOJO / PRACTICE GYM</button>
+        <button id="btn-high-scores" class="c64-btn"><span class="btn-bullet">&#9670;</span> TOP 100 HIGH SCORES</button>
+        <button id="btn-moves-manual" class="c64-btn"><span class="btn-bullet">&#9670;</span> MOVES MANUAL &amp; LORE</button>
+        <button id="btn-story-intro" class="c64-btn"><span class="btn-bullet">&#9670;</span> REPLAY INTRO CRAWL</button>
+        <button id="btn-options" class="c64-btn"><span class="btn-bullet">&#9670;</span> OPTIONS &amp; AUDIO</button>
+      </div>
+
+      <div class="menu-footer">
+        <div class="high-score-display">TOP SCORE: <span id="menu-high-score">050000</span></div>
+        <div class="credits-tag">&copy; 1987-2026 MELBOURNE &bull; SECTOR 7 STUDIOS</div>
+      </div>
+    </div>
+
+    <!-- PRACTICE / DOJO SCREEN (Just like Bop 'n Rumble gym!) -->
+    <div id="practice-screen" class="screen-overlay hidden">
+      <div id="practice-guide-layer" class="practice-guide-box">
+        <div class="practice-header">
+          <h2>GLEEP-GLORP'S PRACTICE GYM</h2>
+          <p>TEST YOUR ALIEN MOVES ON THE DUKE PUNCHING DUMMY OR SPAWN DUMMY ENEMIES!</p>
+        </div>
+        <div class="practice-move-display">
+          <div class="move-badge" id="practice-current-move">LAST MOVE: READY</div>
+          <div class="move-hint" id="practice-move-hint">Use J/K/L/U/I/O keys or on-screen buttons to execute moves!</div>
+        </div>
+        <div class="practice-controls-reminder">
+          <div class="control-col">
+            <strong>[J]</strong> Standard Jab<br>
+            <strong>[K]</strong> Stretchy Headbutt (Bop!)<br>
+            <strong>[L]</strong> Low Trip / Shin Grab
+          </div>
+          <div class="control-col">
+            <strong>[U]</strong> Bull Ram / Bulldozer<br>
+            <strong>[I]</strong> Ear Twist (Close)<br>
+            <strong>[O]</strong> Donkey Back Kick
+          </div>
+          <div class="control-col">
+            <strong>[W+J]</strong> Flying Belly Flop<br>
+            <strong>[W+K]</strong> Roundhouse Dropkick<br>
+            <strong>[T]</strong> Alien Taunt / Wiggle
+          </div>
+        </div>
+
+        <!-- Enemy Weakness Guide (Excludes Boss) -->
+        <div class="dojo-enemy-hints-box">
+          <div class="hints-box-title">ENEMY TACTICAL INTEL &amp; WEAKNESSES:</div>
+          <div class="enemy-hint-row"><strong>1. PUNK:</strong> Fast switchblades. Counter with <em>[K] Headbutt</em> or <em>[U] Bull Ram</em>.</div>
+          <div class="enemy-hint-row"><strong>2. GRANNY:</strong> Heavy handbag swings. Duck under with <em>[L] Low Trip</em> or <em>[W+K] Dropkick</em>.</div>
+          <div class="enemy-hint-row"><strong>3. POODLE:</strong> Low-altitude rusher. Trip flat with <em>[L] Low Shin Grab</em> or jump over.</div>
+          <div class="enemy-hint-row"><strong>4. B-BALLER:</strong> Bounces ball attacks. Close gap with <em>[U] Bulldozer</em> or <em>[I] Ear Twist</em>.</div>
+          <div class="enemy-hint-row"><strong>5. BOUNCER:</strong> Armored tank. Soften with <em>[W+J] Belly Flop</em> or baffle with <em>[T] Taunt</em>.</div>
+        </div>
+
+        <div class="practice-top-actions">
+          <button id="btn-let-me-try" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> LET ME TRY (FREE PLAY)</button>
+          <button id="btn-exit-practice" class="c64-btn"><span class="btn-bullet">&#9664;</span> BACK TO MENU</button>
+        </div>
+      </div>
+
+      <!-- Live Floating Dojo Toolbar (Visible during Free Play) -->
+      <div id="dojo-free-toolbar" class="dojo-toolbar hidden">
+        <div class="dojo-toolbar-title">DOJO SPAWNER (THEY DO 0 DMG):</div>
+        <div class="dojo-btn-row">
+          <button class="dojo-spawn-btn" data-spawn="punk"><strong>[1]</strong> PUNK</button>
+          <button class="dojo-spawn-btn" data-spawn="granny"><strong>[2]</strong> GRANNY</button>
+          <button class="dojo-spawn-btn" data-spawn="dog"><strong>[3]</strong> POODLE</button>
+          <button class="dojo-spawn-btn" data-spawn="basketballer"><strong>[4]</strong> HOOPS</button>
+          <button class="dojo-spawn-btn" data-spawn="bouncer"><strong>[5]</strong> BOUNCER</button>
+          <button class="dojo-spawn-btn" data-spawn="duke"><strong>[6]</strong> DUKE</button>
+          <button class="dojo-spawn-btn" data-spawn="trashcan"><strong>[7]</strong> TRASH</button>
+          <button class="dojo-spawn-btn" data-spawn="hydrant"><strong>[8]</strong> HYDRANT</button>
+          <button class="dojo-action-btn warn" id="btn-dojo-clear"><strong>[9]</strong> CLEAR</button>
+          <button class="dojo-action-btn" id="btn-dojo-guide"><strong>[H]</strong> GUIDE</button>
+          <button class="dojo-action-btn exit" id="btn-dojo-exit">EXIT</button>
+        </div>
+      </div>
+
+      <!-- Live Floating Tactical Hint Bar -->
+      <div id="dojo-tactical-hint" class="dojo-hint-pill hidden">
+        <span class="hint-icon">&#9873; INTEL:</span>
+        <span id="dojo-hint-text" class="hint-msg">Spawn an enemy [1-5] to view tactical combat counter!</span>
+      </div>
+    </div>
+
+    <!-- MOVES MANUAL MODAL -->
+    <div id="moves-manual-screen" class="screen-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2>OFFICIAL BOP 'N RUMBLE MOVE MANUAL</h2>
+          <button id="btn-close-manual" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-content moves-grid">
+          <div class="move-card">
+            <div class="move-title">1. JAB / KNUCKLE SANDWICH</div>
+            <div class="move-keys">[J] or [ATTACK 1]</div>
+            <div class="move-desc">Quick 1-2 skinny punch. Fast recovery, perfect for interrupting punks.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">2. STRETCHY HEADBUTT (BOP!)</div>
+            <div class="move-keys">[K] or [&rarr; + ATTACK]</div>
+            <div class="move-desc">Gleep-Glorp snaps his rubbery gray cranium forward with extreme concussive force.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">3. LOW TRIP / SHIN GRAB</div>
+            <div class="move-keys">[L] or [&darr; + ATTACK]</div>
+            <div class="move-desc">Ducks low and fondles ankles. Essential for tripping charging attack poodles!</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">4. BULL RAM / BULLDOZER</div>
+            <div class="move-keys">[U] or [Double Tap &rarr;]</div>
+            <div class="move-desc">Lowers his massive alien skull and rockets across the asphalt, bowling over everyone.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">5. EAR TWIST / CHEEK PINCH</div>
+            <div class="move-keys">[I] or [Grapple Contact]</div>
+            <div class="move-desc">Walk directly into an enemy to grab their ears and twist mercilessly!</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">6. FLYING BELLY FLOP</div>
+            <div class="move-keys">[W + J] or [JUMP + &darr; + ATK]</div>
+            <div class="move-desc">Leaps high and lands stomach-first on downed foes for maximum comic impact.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">7. ROUNDHOUSE DROPKICK</div>
+            <div class="move-keys">[W + K] or [JUMP + &rarr; + ATK]</div>
+            <div class="move-desc">Airborne spinning double kick that sends street punks flying across the screen.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">8. MACHO ALIEN ELBOW</div>
+            <div class="move-keys">[JUMP + &uarr; + ATK]</div>
+            <div class="move-desc">Devastating descending elbow smash from the top turnbuckle of space!</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">9. DONKEY BACK KICK</div>
+            <div class="move-keys">[O] or [&larr; + ATTACK]</div>
+            <div class="move-desc">Mule kicks behind to punish sneak attackers and greedy grannies.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">10. ALIEN TAUNT (WIGGLE)</div>
+            <div class="move-keys">[T] or [TAUNT]</div>
+            <div class="move-desc">Wiggles hips and antenna, confusing enemies and charging the UFO Cosmic Rage bar!</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">11. COSMIC TRACTOR BEAM</div>
+            <div class="move-keys">[SPACE] (When UFO Bar Full)</div>
+            <div class="move-desc">Summons the mothership's laser beam to zap and elevate all enemies on screen!</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-back-from-manual" class="c64-btn primary-btn">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIONS MODAL WITH VOLUME SLIDERS -->
+    <div id="options-screen" class="screen-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2>AUDIO &amp; SYSTEM OPTIONS</h2>
+          <button id="btn-close-options" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-content options-body">
+          <!-- Master Volume Slider -->
+          <div class="option-slider-row">
+            <div class="slider-info">
+              <span>MASTER VOLUME:</span>
+              <span id="label-master-vol" class="vol-val">70%</span>
+            </div>
+            <input type="range" id="slider-master-vol" min="0" max="100" value="70" class="c64-slider">
+          </div>
+
+          <!-- Music Volume Slider -->
+          <div class="option-slider-row">
+            <div class="slider-info">
+              <span>MUSIC VOLUME (SID CHIP):</span>
+              <span id="label-music-vol" class="vol-val">50%</span>
+            </div>
+            <input type="range" id="slider-music-vol" min="0" max="100" value="50" class="c64-slider">
+          </div>
+
+          <!-- Sound Effects Volume Slider -->
+          <div class="option-slider-row">
+            <div class="slider-info">
+              <span>EFFECTS VOLUME (8-BIT SFX):</span>
+              <span id="label-sfx-vol" class="vol-val">70%</span>
+            </div>
+            <input type="range" id="slider-sfx-vol" min="0" max="100" value="70" class="c64-slider">
+          </div>
+
+          <!-- Voices Volume Slider -->
+          <div class="option-slider-row">
+            <div class="slider-info">
+              <span>VOICES VOLUME (ALIEN FORMANT):</span>
+              <span id="label-voice-vol" class="vol-val">80%</span>
+            </div>
+            <input type="range" id="slider-voice-vol" min="0" max="100" value="80" class="c64-slider">
+          </div>
+
+          <!-- Dojo Combat Hints Toggle -->
+          <div class="option-row">
+            <span>DOJO ENEMY COMBAT HINTS:</span>
+            <button id="btn-toggle-dojo-hints" class="toggle-btn active">ENABLED</button>
+          </div>
+
+          <!-- Game View Zoom Scale Toggle -->
+          <div class="option-row">
+            <span>GAME VIEW ZOOM:</span>
+            <button id="btn-toggle-scale" class="toggle-btn active">2X DOUBLE (C64)</button>
+          </div>
+
+          <div class="option-row">
+            <span>CRT SCANLINES &amp; CURVE:</span>
+            <button id="btn-toggle-crt" class="toggle-btn active">ENABLED</button>
+          </div>
+          <div class="option-row">
+            <span>FULLSCREEN:</span>
+            <button id="btn-toggle-fullscreen" class="c64-btn sm-btn">TOGGLE</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-back-from-options" class="c64-btn primary-btn">SAVE &amp; RETURN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HIGH SCORES / HALL OF FAME SCREEN (TOP 100) -->
+    <div id="high-scores-screen" class="screen-overlay hidden">
+      <div class="modal-dialog high-scores-dialog">
+        <div class="modal-header">
+          <h2>COMMODORE 64 HALL OF FAME</h2>
+          <button id="btn-close-high-scores" class="close-btn">&times;</button>
+        </div>
+        <div class="high-scores-subhead">
+          <span>TOP 100 RECORDS &bull; MAX 6-CHAR ALIAS &bull; STAGES CLEARED</span>
+        </div>
+        <div class="high-scores-tabs">
+          <button class="tab-btn active" id="tab-top-10" data-range="10">TOP 10</button>
+          <button class="tab-btn" id="tab-top-50" data-range="50">TOP 50</button>
+          <button class="tab-btn" id="tab-top-100" data-range="100">ALL 100</button>
+        </div>
+        <div class="modal-content high-scores-body">
+          <div class="high-scores-table-wrapper">
+            <table class="high-scores-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">RANK</th>
+                  <th class="col-name">NAME</th>
+                  <th class="col-score">SCORE</th>
+                  <th class="col-stage">LEVEL CLEARED</th>
+                </tr>
+              </thead>
+              <tbody id="high-scores-table-body">
+                <!-- Dynamically filled by high-scores.js / game.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer high-scores-footer">
+          <button id="btn-reset-high-scores" class="c64-btn danger-btn">RESET DEFAULTS</button>
+          <button id="btn-back-from-high-scores" class="c64-btn primary-btn">RETURN TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL CLEAR / INTERMISSION CUTSCENE -->
+    <div id="stage-clear-screen" class="screen-overlay hidden">
+      <div class="clear-banner">
+        <h2 id="stage-clear-title">STAGE 1 CLEARED!</h2>
+        <div class="clear-alien-dance"></div>
+        <p class="clear-speech" id="stage-clear-quote">"TAKE THAT, WEIRD HAIRCUT HUMANS!"</p>
+        <div class="clear-stats-table">
+          <div class="stat-line"><span>ENEMIES BOPPED:</span> <span id="stat-enemies-defeated">0</span></div>
+          <div class="stat-line"><span>HEADBUTT COMBO BONUS:</span> <span id="stat-combo-bonus">0</span></div>
+          <div class="stat-line"><span>STAGE CLEAR BONUS:</span> <span id="stat-stage-bonus">+5000</span></div>
+          <div class="stat-line total"><span>TOTAL SCORE:</span> <span id="stat-total-score">0</span></div>
+        </div>
+        <button id="btn-next-stage" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> PROCEED TO NEXT STAGE</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="game-over-screen" class="screen-overlay hidden">
+      <div class="game-over-box">
+        <h1 class="game-over-title">GAME OVER</h1>
+        <p class="game-over-sub">ALL LIVES LOST &bull; GLEEP-GLORP HAS BEEN BOPPED!</p>
+        
+        <div class="game-over-stats">
+          <div class="stat-line"><span>FINAL SCORE:</span> <span id="gameover-final-score">000000</span></div>
+          <div class="stat-line"><span>LEVEL REACHED:</span> <span id="gameover-stage-reached">STAGE 1</span></div>
+        </div>
+
+        <!-- High Score Name Entry Prompt (Active if player qualifies for Top 100) -->
+        <div id="game-over-highscore-entry" class="highscore-entry-box hidden">
+          <div class="highscore-badge">&#9733; NEW HIGH SCORE RECORD! &#9733;</div>
+          <p class="highscore-rank-notice" id="gameover-rank-notice">YOU QUALIFIED FOR THE TOP 100!</p>
+          <div class="name-input-group">
+            <label for="input-player-name">ENTER NAME (MAX 6 CHARS):</label>
+            <input type="text" id="input-player-name" maxlength="6" value="GLEEP!" class="c64-name-input" autocomplete="off" spellcheck="false" />
+          </div>
+          <button id="btn-submit-high-score" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> SUBMIT RECORD</button>
+        </div>
+
+        <div class="game-over-actions">
+          <button id="btn-view-scores-gameover" class="c64-btn"><span class="btn-bullet">&#9670;</span> TOP 100 HIGH SCORES</button>
+          <button id="btn-quit-game" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> RETURN TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- UFO VICTORY ENDING CUTSCENE -->
+    <div id="victory-screen" class="screen-overlay hidden">
+      <div class="victory-container">
+        <h1 class="victory-title">COSMIC VENGEANCE ACHIEVED!</h1>
+        <div class="victory-scene">
+          <div class="victory-ufo" id="victory-ufo-elem">
+            <div class="ufo-light-beam"></div>
+          </div>
+          <div class="victory-alien-rising" id="victory-alien-elem"></div>
+          <div class="defeated-duke" id="victory-duke-elem"></div>
+        </div>
+        <p class="victory-dialogue" id="victory-dialogue-text">
+          "HAHAHA! WHO IS THE FRAIL OLD MAN NOW, DUKE?! SECTOR 7 SENDS ITS REGARDS!"
+        </p>
+        <div class="victory-credits">
+          <p>GLEEP-GLORP HAS ZOOMED INTO HYPERSPACE LAUGHING HYSTERICALLY.</p>
+          <p>EARTH HAS BEEN SAVED FROM BAD 80s HAIRSTYLES... FOR NOW.</p>
+          <div class="final-score-box">FINAL SCORE: <span id="victory-final-score">000000</span></div>
+        </div>
+
+        <!-- High Score Entry on Victory -->
+        <div id="victory-highscore-entry" class="highscore-entry-box hidden">
+          <div class="highscore-badge">&#9733; VICTORY RECORD! &#9733;</div>
+          <div class="name-input-group">
+            <label for="input-victory-name">ENTER NAME (MAX 6 CHARS):</label>
+            <input type="text" id="input-victory-name" maxlength="6" value="GLEEP!" class="c64-name-input" autocomplete="off" spellcheck="false" />
+          </div>
+          <button id="btn-submit-victory-score" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> SAVE VICTORY SCORE</button>
+        </div>
+
+        <div class="victory-actions">
+          <button id="btn-view-scores-victory" class="c64-btn"><span class="btn-bullet">&#9670;</span> TOP 100 HIGH SCORES</button>
+          <button id="btn-victory-restart" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> RETURN TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIRTUAL TOUCH GAMEPAD (For Mobile / Touchscreen Devices) -->
+    <div id="touch-controls" class="touch-layer">
+      <!-- Virtual D-Pad / Joystick -->
+      <div class="virtual-dpad" id="v-dpad">
+        <button class="dpad-btn up" data-key="ArrowUp">&#9650;</button>
+        <button class="dpad-btn left" data-key="ArrowLeft">&#9664;</button>
+        <button class="dpad-btn right" data-key="ArrowRight">&#9654;</button>
+        <button class="dpad-btn down" data-key="ArrowDown">&#9660;</button>
+        <div class="dpad-center"></div>
+      </div>
+
+      <!-- Virtual Action Buttons -->
+      <div class="virtual-actions">
+        <div class="action-row">
+          <button class="v-btn bop-btn" data-key="KeyK">BOP [K]</button>
+          <button class="v-btn ram-btn" data-key="KeyU">RAM [U]</button>
+          <button class="v-btn super-btn" data-key="Space">UFO</button>
+        </div>
+        <div class="action-row">
+          <button class="v-btn punch-btn" data-key="KeyJ">PUNCH [J]</button>
+          <button class="v-btn trip-btn" data-key="KeyL">TRIP [L]</button>
+          <button class="v-btn ear-btn" data-key="KeyI">EAR [I]</button>
+          <button class="v-btn taunt-btn" data-key="KeyT">TAUNT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio/sid-synth.js"></script>
+  <script src="js/audio/sound-effects.js"></script>
+  <script src="js/audio/alien-voice.js"></script>
+  <script src="js/engine/input.js"></script>
+  <script src="js/engine/physics.js"></script>
+  <script src="js/engine/camera.js"></script>
+  <script src="js/engine/particle.js"></script>
+  <script src="js/engine/high-scores.js"></script>
+  <script src="js/entities/sprite-renderer.js"></script>
+  <script src="js/entities/props.js"></script>
+  <script src="js/entities/player.js"></script>
+  <script src="js/entities/enemies.js"></script>
+  <script src="js/entities/boss.js"></script>
+  <script src="js/stages/stage-data.js"></script>
+  <script src="js/stages/cutscenes.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
