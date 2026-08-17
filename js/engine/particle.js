@@ -1,7 +1,8 @@
 /**
- * TNT ALIEN RUMBLE - PARTICLE & COMIC FX ENGINE
- * Handles comic hit texts ("BOP!", "POW!"), hit sparks, dust clouds,
- * stun stars, debris, and UFO cosmic tractor beam visuals.
+ * TNT ALIEN RUMBLE - PARTICLE & COMIC FX ENGINE (AMIGA 500 EDITION)
+ * Handles comic action texts ("BOP!", "POW!", "SLAM DUNK!"), hit sparks,
+ * dust clouds, sewer grate steam plumes, A/C condensation water drips,
+ * sonic bark shockwave rings, coin & denture scatters, and UFO cosmic tractor beams.
  */
 
 class ParticleSystem {
@@ -72,7 +73,7 @@ class ParticleSystem {
     }
   }
 
-  // 4. Trash Can / Prop Debris (Cans, paper, screws)
+  // 4. Trash Can / Prop Debris (Cans, paper, apples, bolts)
   spawnDebris(x, y, z, count = 8) {
     const debrisTypes = ['can', 'paper', 'apple', 'bolt'];
     for (let i = 0; i < count; i++) {
@@ -98,16 +99,101 @@ class ParticleSystem {
     target.stunTimer = duration;
   }
 
-  // 6. UFO Cosmic Beam Effect
-  spawnUfoBeam(targetX, targetY) {
+  // 6. Sewer Grate Steam Plume
+  spawnSewerSteam(x, y) {
+    if (this.particles.length > 250) return;
+    this.particles.push({
+      type: 'steam',
+      x: x + (Math.random() * 20 - 10),
+      y: y,
+      z: 2 + Math.random() * 4,
+      vx: (Math.random() * 2 - 1) * 0.25,
+      vy: (Math.random() * 2 - 1) * 0.1,
+      vz: 0.8 + Math.random() * 0.9,
+      size: 6,
+      maxSize: 22 + Math.random() * 12,
+      alpha: 0.5,
+      life: 50 + Math.floor(Math.random() * 30),
+      maxLife: 80
+    });
+  }
+
+  // 7. A/C Window Condensation Water Drip
+  spawnAcDrip(x, y, z = 180) {
+    this.particles.push({
+      type: 'ac-drip',
+      x: x,
+      y: y,
+      z: z,
+      vz: -1.2,
+      gravity: 0.25,
+      life: 90,
+      maxLife: 90
+    });
+  }
+
+  // 8. Sonic Bark Shockwave Ring (Attack Poodle)
+  spawnSonicRing(x, y, z, facing = 1) {
+    this.particles.push({
+      type: 'sonic-ring',
+      x: x + facing * 15,
+      y: y,
+      z: z + 12,
+      vx: facing * 4.5,
+      radius: 6,
+      maxRadius: 36,
+      alpha: 0.85,
+      life: 22,
+      maxLife: 22
+    });
+  }
+
+  // 9. Coin & Denture Scatter (Granny Agnes Impact)
+  spawnCoinScatter(x, y, z = 20, count = 6) {
+    for (let i = 0; i < count; i++) {
+      const isDenture = (i === 0 && Math.random() < 0.6);
+      this.particles.push({
+        type: isDenture ? 'denture' : 'coin',
+        x: x,
+        y: y,
+        z: z + 10,
+        vx: (Math.random() * 2 - 1) * 4.5,
+        vy: (Math.random() * 2 - 1) * 1.8,
+        vz: 3.5 + Math.random() * 4.5,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() * 2 - 1) * 0.3,
+        life: 55,
+        maxLife: 55
+      });
+    }
+  }
+
+  // 10. Dunk / Slam Shockwave Ring
+  spawnShockwave(x, y, maxRadius = 45, color = '#ffd700') {
+    this.particles.push({
+      type: 'shockwave',
+      x: x,
+      y: y,
+      z: 0,
+      radius: 4,
+      maxRadius: maxRadius,
+      color: color,
+      alpha: 0.9,
+      life: 20,
+      maxLife: 20
+    });
+  }
+
+  // 11. UFO Cosmic Tractor Beam
+  spawnUfoBeam(targetX, targetY, width = 160) {
     this.particles.push({
       type: 'ufo-beam',
       x: targetX,
       y: targetY,
-      width: 140,
-      alpha: 1,
-      life: 50,
-      maxLife: 50
+      width: width,
+      alpha: 0,
+      life: 60,
+      maxLife: 60
     });
   }
 
@@ -121,11 +207,10 @@ class ParticleSystem {
         continue;
       }
 
-      // Type-specific update
       if (p.type === 'comic-text') {
         p.z += p.vz;
         p.vz *= 0.92;
-        if (p.scale < p.maxScale) p.scale += 0.15;
+        p.scale = Math.min(p.maxScale, p.scale + 0.1);
         p.alpha = p.life / p.maxLife;
       } else if (p.type === 'spark') {
         p.x += p.vx;
@@ -138,15 +223,54 @@ class ParticleSystem {
         p.y += p.vy;
         p.z += p.vz;
         p.size += 0.4;
-        p.alpha = (p.life / p.maxLife) * 0.6;
-      } else if (p.type === 'debris') {
+        p.alpha = (p.life / p.maxLife) * 0.7;
+      } else if (p.type === 'steam') {
         p.x += p.vx;
         p.y += p.vy;
         p.z += p.vz;
-        p.vz -= 0.35;
+        p.size = p.size + (p.maxSize - p.size) * 0.04;
+        p.alpha = Math.sin((p.life / p.maxLife) * Math.PI) * 0.45;
+      } else if (p.type === 'ac-drip') {
+        p.vz -= p.gravity;
+        p.z += p.vz;
         if (p.z <= 0) {
           p.z = 0;
-          p.vz = -p.vz * 0.4; // Bounce
+          if (window.sfx && Math.random() < 0.3) window.sfx.playDrip();
+          // Spawn tiny splash
+          for (let s = 0; s < 3; s++) {
+            this.particles.push({
+              type: 'spark',
+              x: p.x + (Math.random() * 4 - 2),
+              y: p.y,
+              z: 1,
+              vx: (Math.random() * 2 - 1) * 1.2,
+              vy: (Math.random() * 2 - 1) * 0.5,
+              vz: 0.8 + Math.random() * 1.2,
+              color: '#aaffee',
+              size: 2,
+              alpha: 0.8,
+              life: 10,
+              maxLife: 10
+            });
+          }
+          this.particles.splice(i, 1);
+          continue;
+        }
+      } else if (p.type === 'sonic-ring') {
+        p.x += p.vx;
+        p.radius += (p.maxRadius - p.radius) * 0.18;
+        p.alpha = (p.life / p.maxLife);
+      } else if (p.type === 'shockwave') {
+        p.radius += (p.maxRadius - p.radius) * 0.22;
+        p.alpha = (p.life / p.maxLife);
+      } else if (p.type === 'debris' || p.type === 'coin' || p.type === 'denture') {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.z += p.vz;
+        p.vz -= 0.3; // Gravity
+        if (p.z < 0) {
+          p.z = 0;
+          p.vz = -p.vz * 0.4;
           p.vx *= 0.7;
         }
         p.rot += p.rotSpeed;
@@ -189,6 +313,60 @@ class ParticleSystem {
         ctx.beginPath();
         ctx.arc(screenX, screenY, p.size / 2, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
+      } else if (p.type === 'steam') {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        const grad = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, p.size);
+        grad.addColorStop(0, 'rgba(230, 245, 255, 0.6)');
+        grad.addColorStop(0.6, 'rgba(180, 210, 240, 0.25)');
+        grad.addColorStop(1, 'rgba(180, 210, 240, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else if (p.type === 'ac-drip') {
+        ctx.save();
+        ctx.fillStyle = '#aaffee';
+        ctx.fillRect(screenX - 1, screenY - 2, 2, 4);
+        ctx.restore();
+      } else if (p.type === 'sonic-ring') {
+        ctx.save();
+        ctx.strokeStyle = `rgba(170, 255, 238, ${p.alpha})`;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.ellipse(screenX, screenY, p.radius, p.radius * 0.45, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (p.type === 'shockwave') {
+        ctx.save();
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(screenX, screenY, p.radius, p.radius * 0.4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (p.type === 'coin') {
+        ctx.save();
+        ctx.translate(screenX, screenY);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 4, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffaa00';
+        ctx.fillRect(-1, -1, 2, 2);
+        ctx.restore();
+      } else if (p.type === 'denture') {
+        ctx.save();
+        ctx.translate(screenX, screenY);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = '#ff7777'; // Pink gums
+        ctx.fillRect(-5, -3, 10, 4);
+        ctx.fillStyle = '#ffffff'; // White teeth
+        ctx.fillRect(-4, -1, 8, 3);
         ctx.restore();
       } else if (p.type === 'debris') {
         ctx.save();

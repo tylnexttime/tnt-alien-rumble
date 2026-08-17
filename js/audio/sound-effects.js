@@ -438,6 +438,163 @@ class SoundEffects {
     this.playNoiseBurst(0.06, 1200, 0.4);
   }
 
+  // 18. Roller Skates Whir / Slalom
+  playSkateWhir() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+    const dur = 0.22;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, t);
+    osc.frequency.linearRampToValueAtTime(480, t + 0.1);
+    osc.frequency.exponentialRampToValueAtTime(220, t + dur);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.2, t + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + dur);
+
+    this.playNoiseBurst(0.18, 1600, 0.2);
+  }
+
+  // 19. Heavy Barbell Spin / Whirlwind
+  playBarbellSpin() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+    const dur = 0.35;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(90, t);
+    osc.frequency.linearRampToValueAtTime(280, t + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(80, t + dur);
+
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.linearRampToValueAtTime(0.45, t + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + dur);
+
+    this.playNoiseBurst(0.25, 600, 0.35);
+  }
+
+  // 20. Barbell Heavy Iron Clang
+  playBarbellClang() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(680, t);
+    osc.frequency.exponentialRampToValueAtTime(140, t + 0.25);
+
+    gain.gain.setValueAtTime(0.5, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + 0.3);
+
+    this.playNoiseBurst(0.08, 3000, 0.4);
+  }
+
+  // 21. Umbrella Shield Block Deflection (Crisp fabric / metal clatter)
+  playUmbrellaBlock() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.07);
+
+    gain.gain.setValueAtTime(0.4, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + 0.08);
+
+    this.playNoiseBurst(0.05, 2000, 0.35);
+  }
+
+  // 22. Poodle Ankle Latch / Dog Bite
+  playDogLatch() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(420, t);
+    osc.frequency.linearRampToValueAtTime(620, t + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(200, t + 0.1);
+
+    gain.gain.setValueAtTime(0.4, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + 0.12);
+  }
+
+  // 23. Suplex Heavy Slam / Earthquake
+  playSuplex() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(140, t);
+    osc.frequency.exponentialRampToValueAtTime(35, t + 0.35);
+
+    gain.gain.setValueAtTime(0.7, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + 0.4);
+
+    this.playNoiseBurst(0.2, 350, 0.6);
+  }
+
+  // 24. A/C Water Droplet Plink
+  playDrip() {
+    if (!this.enabled || !this.ctx || !this.out) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200 + Math.random() * 400, t);
+    osc.frequency.exponentialRampToValueAtTime(600, t + 0.04);
+
+    gain.gain.setValueAtTime(0.12, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+    osc.connect(gain);
+    gain.connect(this.out);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  }
+
   // Helper: Noise burst
   playNoiseBurst(duration, filterFreq, volume = 0.3) {
     if (!this.ctx || !this.out) return;

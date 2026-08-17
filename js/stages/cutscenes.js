@@ -111,10 +111,12 @@ class CutsceneManager {
 
     this.enemyHints = {
       punk: "COUNTER PUNK: Mid-air dropkick! Duck or interrupt with [K] Stretchy Headbutt.",
-      granny: "COUNTER GRANNY: Flying handbag! Duck under with [L] Shin Grab or jump with [W]. Watch for helicopter escape!",
+      granny: "COUNTER GRANNY: Flying handbag & Umbrella shield! Duck under with [L] Shin Grab. Watch for helicopter escape!",
       dog: "COUNTER POODLE: Low ankle-biter! Jump over with [W] or trip flat using [L] Low Shin Grab.",
-      basketballer: "COUNTER HOOPS: Towering giant bounces basketballs! Jump over balls with [W] and close in with [U] Bull Ram.",
-      bouncer: "COUNTER BRUTUS: Bulldozer charge tackle! Jump over charge with [W] or counter-ram with [U]."
+      basketballer: "COUNTER HOOPS: Towering giant bounces balls & dunks! Jump over balls with [W] and close in with [U] Bull Ram.",
+      bouncer: "COUNTER BRUTUS: Bulldozer charge & airplane spin! Jump over charge with [W] or counter-ram with [U].",
+      skater: "COUNTER SKATER: High-speed roller slalom! Intercept with [K] Headbutt or catch with [L] Low Trip.",
+      strongman: "COUNTER STRONGMAN: Whirling Barbell Spin! Keep distance during spin; attack from behind with [O] Donkey Kick!"
     };
 
     this.resetPracticeDummy();
@@ -230,7 +232,6 @@ class CutsceneManager {
       duke.say("LET'S SPAR, ALIEN DUDE!");
       window.game.boss = duke;
       if (window.sfx) window.sfx.playWhoosh();
-      // No hint for boss!
       this.hideTacticalHint();
       return;
     }
@@ -291,9 +292,9 @@ class CutsceneManager {
     else if (key === 'Digit3') this.spawnTrainingEntity('dog');
     else if (key === 'Digit4') this.spawnTrainingEntity('basketballer');
     else if (key === 'Digit5') this.spawnTrainingEntity('bouncer');
-    else if (key === 'Digit6') this.spawnTrainingEntity('duke');
-    else if (key === 'Digit7') this.spawnTrainingEntity('trashcan');
-    else if (key === 'Digit8') this.spawnTrainingEntity('hydrant');
+    else if (key === 'Digit6') this.spawnTrainingEntity('skater');
+    else if (key === 'Digit7') this.spawnTrainingEntity('strongman');
+    else if (key === 'Digit8') this.spawnTrainingEntity('duke');
     else if (key === 'Digit9') this.clearTrainingEntities();
     else if (key === 'Digit0') this.resetPracticeDummy();
     else if (key === 'KeyH') this.toggleGuide();

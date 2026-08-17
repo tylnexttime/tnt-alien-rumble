@@ -172,11 +172,13 @@
         <!-- Enemy Weakness Guide (Excludes Boss) -->
         <div class="dojo-enemy-hints-box">
           <div class="hints-box-title">ENEMY TACTICAL INTEL &amp; WEAKNESSES:</div>
-          <div class="enemy-hint-row"><strong>1. PUNK:</strong> Fast switchblades. Counter with <em>[K] Headbutt</em> or <em>[U] Bull Ram</em>.</div>
-          <div class="enemy-hint-row"><strong>2. GRANNY:</strong> Heavy handbag swings. Duck under with <em>[L] Low Trip</em> or <em>[W+K] Dropkick</em>.</div>
-          <div class="enemy-hint-row"><strong>3. POODLE:</strong> Low-altitude rusher. Trip flat with <em>[L] Low Shin Grab</em> or jump over.</div>
-          <div class="enemy-hint-row"><strong>4. B-BALLER:</strong> Bounces ball attacks. Close gap with <em>[U] Bulldozer</em> or <em>[I] Ear Twist</em>.</div>
-          <div class="enemy-hint-row"><strong>5. BOUNCER:</strong> Armored tank. Soften with <em>[W+J] Belly Flop</em> or baffle with <em>[T] Taunt</em>.</div>
+          <div class="enemy-hint-row"><strong>1. PUNK:</strong> Fast switchblades &amp; dropkicks. Counter with <em>[K] Headbutt</em> or <em>[U] Bull Ram</em>.</div>
+          <div class="enemy-hint-row"><strong>2. GRANNY:</strong> Heavy purse &amp; Umbrella Shield. Duck under with <em>[L] Low Trip</em> or jump with <em>[W]</em>.</div>
+          <div class="enemy-hint-row"><strong>3. POODLE:</strong> Sonic bark stun &amp; ankle latch bite. Trip flat with <em>[L] Low Shin Grab</em> or jump.</div>
+          <div class="enemy-hint-row"><strong>4. B-BALLER:</strong> Bounces balls &amp; monster dunk. Jump over balls with <em>[W]</em> and rush with <em>[U] Bulldozer</em>.</div>
+          <div class="enemy-hint-row"><strong>5. BOUNCER:</strong> Armored rush &amp; 360° Airplane Spin. Soften with <em>[W+J] Belly Flop</em> or <em>[U] Ram</em>.</div>
+          <div class="enemy-hint-row"><strong>6. SKATER:</strong> High-speed roller slalom &amp; 360° spin kick. Intercept with <em>[K] Headbutt</em> or <em>[L] Trip</em>.</div>
+          <div class="enemy-hint-row"><strong>7. STRONGMAN:</strong> Invulnerable Barbell Whirlwind! Keep distance during spin, then strike from behind with <em>[O] Donkey Kick</em>.</div>
         </div>
 
         <div class="practice-top-actions">
@@ -194,9 +196,9 @@
           <button class="dojo-spawn-btn" data-spawn="dog"><strong>[3]</strong> POODLE</button>
           <button class="dojo-spawn-btn" data-spawn="basketballer"><strong>[4]</strong> HOOPS</button>
           <button class="dojo-spawn-btn" data-spawn="bouncer"><strong>[5]</strong> BOUNCER</button>
-          <button class="dojo-spawn-btn" data-spawn="duke"><strong>[6]</strong> DUKE</button>
-          <button class="dojo-spawn-btn" data-spawn="trashcan"><strong>[7]</strong> TRASH</button>
-          <button class="dojo-spawn-btn" data-spawn="hydrant"><strong>[8]</strong> HYDRANT</button>
+          <button class="dojo-spawn-btn" data-spawn="skater"><strong>[6]</strong> SKATER</button>
+          <button class="dojo-spawn-btn" data-spawn="strongman"><strong>[7]</strong> STRONGMAN</button>
+          <button class="dojo-spawn-btn" data-spawn="duke"><strong>[8]</strong> DUKE</button>
           <button class="dojo-action-btn warn" id="btn-dojo-clear"><strong>[9]</strong> CLEAR</button>
           <button class="dojo-action-btn" id="btn-dojo-guide"><strong>[H]</strong> GUIDE</button>
           <button class="dojo-action-btn exit" id="btn-dojo-exit">EXIT</button>
@@ -206,7 +208,7 @@
       <!-- Live Floating Tactical Hint Bar -->
       <div id="dojo-tactical-hint" class="dojo-hint-pill hidden">
         <span class="hint-icon">&#9873; INTEL:</span>
-        <span id="dojo-hint-text" class="hint-msg">Spawn an enemy [1-5] to view tactical combat counter!</span>
+        <span id="dojo-hint-text" class="hint-msg">Spawn an enemy [1-7] to view tactical combat counter!</span>
       </div>
     </div>
 
@@ -272,6 +274,52 @@
             <div class="move-title">11. COSMIC TRACTOR BEAM</div>
             <div class="move-keys">[SPACE] (When UFO Bar Full)</div>
             <div class="move-desc">Summons the mothership's laser beam to zap and elevate all enemies on screen!</div>
+          </div>
+        </div>
+
+        <div class="modal-header" style="border-top: 2px solid #58626e; margin-top: 15px;">
+          <h2>AMIGA 500 ENEMY FIELD ROSTER &amp; COUNTERS</h2>
+        </div>
+        <div class="modal-content moves-grid">
+          <div class="move-card">
+            <div class="move-title">MOHAWK PUNK (SPIKE)</div>
+            <div class="move-keys">BEHAVIOR: Knife Stabs &amp; Dropkicks</div>
+            <div class="move-desc">Fast street thug. Intercept his flying dropkick with <strong>[K] Stretchy Headbutt</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">HANDBAG GRANNY (AGNES)</div>
+            <div class="move-keys">BEHAVIOR: Purse Boomerang, Umbrella Shield, Helicopter</div>
+            <div class="move-desc">Do not strike during her Umbrella Shield (0 DMG!). Duck under purse throws with <strong>[L] Low Trip</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">ATTACK POODLE (BARNABY)</div>
+            <div class="move-keys">BEHAVIOR: Sonic Bark Stun &amp; Ankle Latch Bite</div>
+            <div class="move-desc">Rapid low-profile rusher. Jump over with <strong>[W]</strong> or trip flat with <strong>[L] Shin Grab</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">HOOPSTER (HOOPS #23)</div>
+            <div class="move-keys">BEHAVIOR: Active Dribble, Bouncing Basketball, Monster Dunk</div>
+            <div class="move-desc">Towering 84px athletic giant. Jump over bouncing balls and bowl him over with <strong>[U] Bull Ram</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">BRUTUS THE BOUNCER</div>
+            <div class="move-keys">BEHAVIOR: Bulldozer Charge &amp; 360° Airplane Spin</div>
+            <div class="move-desc">Armored bruiser. Jump over his charge tackle with <strong>[W]</strong> and flatten with <strong>[W+J] Belly Flop</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">AXEL THE ROLLER-SKATER</div>
+            <div class="move-keys">BEHAVIOR: High-Speed Slalom &amp; 360° Spin Kick</div>
+            <div class="move-desc">Agile drive-by skater. Time your <strong>[K] Stretchy Headbutt</strong> to knock him off his skates!</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">BRUNO THE STRONGMAN</div>
+            <div class="move-keys">BEHAVIOR: 100KG Barbell Whirlwind &amp; Clang</div>
+            <div class="move-desc">Invulnerable during his 360° whirlwind spin! Keep distance, then strike with <strong>[O] Donkey Kick</strong>.</div>
+          </div>
+          <div class="move-card">
+            <div class="move-title">DUKE DAVIS (FINAL BOSS)</div>
+            <div class="move-keys">BEHAVIOR: Heavy Haymakers, Dragon Kicks &amp; Enraged Aura</div>
+            <div class="move-desc">The legendary 1987 mullet vigilante. Dodge his haymakers vertically, soften with combos, and trigger UFO Super!</div>
           </div>
         </div>
         <div class="modal-footer">

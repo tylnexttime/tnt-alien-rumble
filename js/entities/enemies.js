@@ -1,11 +1,13 @@
 /**
- * TNT ALIEN RUMBLE - ENEMY AI SYSTEM
- * Distinct enemy behaviors from Bop'n Rumble:
+ * TNT ALIEN RUMBLE - ENEMY AI SYSTEM (AMIGA 500 ENHANCED EDITION)
+ * Distinct, highly detailed enemy behaviors from Bop'n Rumble:
  * - Mohawk Punks (Switchblade & Dropkicks)
- * - Handbag Grannies (Heavy Purse Smash & Throw)
- * - Attack Poodles (Fast Ankle Biters)
- * - Basketballers (Bouncing Ball Projectiles)
- * - Bouncers (Heavy Grapplers)
+ * - Handbag Grannies (Heavy Purse Smash, Boomerang Throw, Umbrella Shield Block & Helicopter Escape)
+ * - Attack Poodles / Bulldogs (Sonic Bark Stun & Ankle Latch Bites)
+ * - Basketballers (Active Dribbling, Bouncing Balls, Monster Dunk Shockwaves)
+ * - Bouncers (Bulldozer Rush, Ground Pound, 360° Airplane Spin Throws)
+ * - [NEW] Axel the Skater (High-speed Slalom, 360° Spin Kicks)
+ * - [NEW] Bruno the Strongman (Whirling Barbell Whirlwind, Heavy Iron Clangs)
  */
 
 class Enemy {
@@ -17,7 +19,7 @@ class Enemy {
     this.vy = 0;
     this.vz = 0;
     this.friction = 0.8;
-    this.facing = -1; // Usually face player left
+    this.facing = -1; // Face player left by default
 
     this.type = type;
     this.isAlive = true;
@@ -25,14 +27,14 @@ class Enemy {
     this.invulnTimer = 0;
     this.stunTimer = 0;
 
-    this.state = 'walk'; // 'idle', 'walk', 'attack', 'throw_purse', 'helicopter', 'throw_ball', 'dropkick', 'charge_tackle', 'hurt', 'knockdown'
+    this.state = 'walk'; // 'idle', 'walk', 'attack', 'throw_purse', 'umbrella_block', 'helicopter', 'throw_ball', 'dunk_slam', 'dropkick', 'charge_tackle', 'airplane_spin', 'barbell_spin', 'hurt', 'knockdown'
     this.stateTimer = 0;
     this.animTimer = Math.random() * 10;
     this.attackCooldown = 15 + Math.random() * 20;
     this.avoidedCount = 0;
     this.isFlying = false;
     this.hasFiredAttack = false;
-    this.attackMode = 'ranged'; // 'ranged' vs 'melee' for hybrid enemies
+    this.attackMode = 'ranged'; // 'ranged' vs 'melee'
 
     this.initStats(type);
   }
@@ -46,7 +48,7 @@ class Enemy {
         this.height = 54;
         this.speed = 2.2;
         this.scoreValue = 300;
-        this.attackRangeX = 42;
+        this.attackRangeX = 44;
         this.attackDamage = 10;
         break;
 
@@ -66,7 +68,7 @@ class Enemy {
         this.hp = 22;
         this.width = 28;
         this.height = 24;
-        this.speed = 3.6; // Very fast
+        this.speed = 3.6; // High speed
         this.scoreValue = 250;
         this.attackRangeX = 38;
         this.attackDamage = 8;
@@ -76,11 +78,11 @@ class Enemy {
         this.maxHp = 50;
         this.hp = 50;
         this.width = 30;
-        this.height = 84; // Towering C64 proportion!
+        this.height = 84; // Towering Amiga proportion
         this.speed = 2.2;
         this.scoreValue = 500;
-        this.attackRangeX = 140; // Can throw ball
-        this.attackDamage = 12;
+        this.attackRangeX = 140;
+        this.attackDamage = 14;
         break;
 
       case 'bouncer':
@@ -90,8 +92,30 @@ class Enemy {
         this.height = 64;
         this.speed = 1.3;
         this.scoreValue = 800;
-        this.attackRangeX = 44;
+        this.attackRangeX = 46;
         this.attackDamage = 22;
+        break;
+
+      case 'skater':
+        this.maxHp = 38;
+        this.hp = 38;
+        this.width = 32;
+        this.height = 56;
+        this.speed = 3.2; // Very agile
+        this.scoreValue = 450;
+        this.attackRangeX = 48;
+        this.attackDamage = 12;
+        break;
+
+      case 'strongman':
+        this.maxHp = 75;
+        this.hp = 75;
+        this.width = 40;
+        this.height = 62;
+        this.speed = 1.5;
+        this.scoreValue = 650;
+        this.attackRangeX = 54;
+        this.attackDamage = 20;
         break;
     }
   }
@@ -99,8 +123,33 @@ class Enemy {
   takeDamage(amount, knockback = 4, knockAir = false, isTrip = false) {
     if (!this.isAlive) return;
 
+    // 1. Granny Umbrella Shield Block Check (Deflects frontal jabs!)
+    if (this.state === 'umbrella_block') {
+      if (window.sfx) window.sfx.playUmbrellaBlock();
+      if (window.particles) {
+        window.particles.spawnHitSparks(this.x + this.facing * 16, this.y, 25, 8, '#00f0ff');
+        window.particles.spawnComicText(this.x, this.y, 45, "BLOCKED!", "#00f0ff");
+      }
+      return; // 0 Damage taken!
+    }
+
+    // 2. Strongman Barbell Whirlwind Invulnerability
+    if (this.state === 'barbell_spin' && !isTrip) {
+      if (window.sfx) window.sfx.playBarbellClang();
+      if (window.particles) {
+        window.particles.spawnHitSparks(this.x, this.y, 30, 10, '#ffd700');
+        window.particles.spawnComicText(this.x, this.y, 50, "DEFLECT!", "#ffd700");
+      }
+      return;
+    }
+
     this.hp -= amount;
-    this.invulnTimer = 20;
+    this.invulnTimer = 18;
+
+    // Granny coin scatter on hit
+    if (this.type === 'granny' && window.particles) {
+      window.particles.spawnCoinScatter(this.x, this.y, 25, 4);
+    }
 
     if (this.hp <= 0) {
       this.hp = 0;
@@ -129,6 +178,10 @@ class Enemy {
     this.vx = -this.facing * knockback;
     this.despawnTimer = 300; // 5.0 seconds at 60fps
     this.despawnTriggered = false;
+
+    if (this.type === 'granny' && window.particles) {
+      window.particles.spawnCoinScatter(this.x, this.y, 25, 8);
+    }
 
     if (window.game) {
       window.game.addScore(this.scoreValue);
@@ -175,6 +228,18 @@ class Enemy {
         window.particles.spawnComicText(this.x, this.y, 25, "K.O.!", "#ffff55");
         if (window.sfx) window.sfx.playPunch();
         break;
+
+      case 'skater':
+        window.particles.spawnHitSparks(this.x, this.y, 20, 10, '#00f7ff');
+        window.particles.spawnComicText(this.x, this.y, 28, "WIPEOUT!", "#00f7ff");
+        if (window.sfx) window.sfx.playWhoosh();
+        break;
+
+      case 'strongman':
+        window.particles.spawnDust(this.x, this.y, 20);
+        window.particles.spawnComicText(this.x, this.y, 30, "TIMBER!", "#ffd700");
+        if (window.sfx) window.sfx.playBarbellClang();
+        break;
     }
   }
 
@@ -195,7 +260,6 @@ class Enemy {
         window.sfx.playHelicopterRotor();
       }
 
-      // Fly off the top of screen into the clouds
       if (this.z > 350) {
         this.isDespawned = true;
         this.isAlive = false;
@@ -211,7 +275,7 @@ class Enemy {
       return;
     }
 
-    // Recovering from hurt or knockdown
+    // Hurt / Knockdown recovery
     if (this.state === 'hurt') {
       this.stateTimer += dt;
       if (this.stateTimer > 24) {
@@ -235,7 +299,7 @@ class Enemy {
       this.attackCooldown -= dt;
     }
 
-    // 2. Granny Handbag Throw
+    // 2. Granny Handbag Boomerang Throw
     if (this.state === 'throw_purse') {
       this.stateTimer += dt;
       this.vx = 0;
@@ -246,7 +310,7 @@ class Enemy {
         if (window.game && window.game.projectiles) {
           const spawnX = this.x + this.facing * 20;
           const spawnY = this.y;
-          const spawnZ = 24; // Chest height
+          const spawnZ = 24;
           window.game.projectiles.push(new HandbagProjectile(spawnX, spawnY, spawnZ, this.facing, this.isTrainingDummy));
           if (window.sfx) window.sfx.playWhoosh();
           if (window.particles) window.particles.spawnComicText(this.x, this.y, 48, "CATCH!", "#cc44cc");
@@ -259,7 +323,7 @@ class Enemy {
         this.attackCooldown = 40 + Math.random() * 30;
         this.attackMode = Math.random() < 0.5 ? 'melee' : 'ranged';
 
-        // Check if avoided multiple times or low HP -> Fly away on helicopter handbag!
+        // Check helicopter escape if low HP
         if (this.avoidedCount >= 2 || (this.hp < this.maxHp * 0.45 && Math.random() < 0.6)) {
           this.state = 'helicopter';
           this.stateTimer = 0;
@@ -271,7 +335,19 @@ class Enemy {
       return;
     }
 
-    // 3. Basketballer Bouncing Ball Throw
+    // 3. Granny Umbrella Shield Block Stance
+    if (this.state === 'umbrella_block') {
+      this.stateTimer += dt;
+      this.vx = 0;
+      this.vy = 0;
+      if (this.stateTimer > 45) {
+        this.state = 'walk';
+        this.attackCooldown = 40 + Math.random() * 20;
+      }
+      return;
+    }
+
+    // 4. Basketballer Bouncing Ball Throw
     if (this.state === 'throw_ball') {
       this.stateTimer += dt;
       this.vx = 0;
@@ -293,15 +369,40 @@ class Enemy {
         this.state = 'walk';
         this.hasFiredAttack = false;
         this.attackCooldown = 45 + Math.random() * 30;
-        this.attackMode = Math.random() < 0.5 ? 'melee' : 'ranged';
       }
       return;
     }
 
-    // 4. Bouncer Bulldozer Charging Tackle
+    // 5. Basketballer Monster Dunk Slam
+    if (this.state === 'dunk_slam') {
+      this.stateTimer += dt;
+      if (!this.hasFiredAttack && this.z <= 2 && this.stateTimer >= 15 && player.isAlive) {
+        this.hasFiredAttack = true;
+        const dist = Math.abs(this.x - player.x);
+        const depthDist = Math.abs(this.y - player.y);
+        if (dist <= 50 && depthDist <= 28) {
+          if (!this.isTrainingDummy) player.takeDamage(this.attackDamage + 8, 8, true);
+        }
+        if (window.sfx) window.sfx.playBasketballBounce();
+        if (window.camera) window.camera.shake(10);
+        if (window.particles) {
+          window.particles.spawnShockwave(this.x, this.y, 50, '#ff6600');
+          window.particles.spawnComicText(this.x, this.y, 60, "SLAM DUNK!", "#ff6600");
+        }
+      }
+
+      if (this.z === 0 && this.stateTimer > 25) {
+        this.state = 'walk';
+        this.hasFiredAttack = false;
+        this.attackCooldown = 50 + Math.random() * 30;
+      }
+      return;
+    }
+
+    // 6. Bouncer Bulldozer Charging Tackle
     if (this.state === 'charge_tackle') {
       this.stateTimer += dt;
-      this.vx = this.facing * 4.6;
+      this.vx = this.facing * 4.8;
       if (Math.floor(this.stateTimer) % 6 === 0 && window.particles) {
         window.particles.spawnDust(this.x - this.facing * 12, this.y, 8);
       }
@@ -309,12 +410,10 @@ class Enemy {
       if (!this.hasFiredAttack && player.isAlive) {
         const dist = Math.abs(this.x - player.x);
         const depthDist = Math.abs(this.y - player.y);
-        if (dist <= 36 && depthDist <= 22 && player.z <= 25) {
+        if (dist <= 38 && depthDist <= 24 && player.z <= 25) {
           this.hasFiredAttack = true;
           if (!this.isTrainingDummy) {
             player.takeDamage(this.attackDamage + 6, 8, true);
-          } else {
-            if (window.particles) window.particles.spawnComicText(player.x, player.y, player.z + 35, "BULLDOZED!", "#ff0055");
           }
           if (window.sfx) window.sfx.playBulldozer();
           if (window.camera) window.camera.shake(8);
@@ -329,20 +428,69 @@ class Enemy {
       return;
     }
 
-    // 5. Mohawk Punk Flying Dropkick
+    // 7. Bouncer 360° Airplane Spin Grapple / Throw
+    if (this.state === 'airplane_spin') {
+      this.stateTimer += dt;
+      this.vx = 0;
+      this.vy = 0;
+
+      if (!this.hasFiredAttack && this.stateTimer >= 30 && player.isAlive) {
+        this.hasFiredAttack = true;
+        if (!this.isTrainingDummy) {
+          player.takeDamage(this.attackDamage + 8, 12, true);
+        }
+        if (window.sfx) window.sfx.playSuplex();
+        if (window.camera) window.camera.shake(12);
+        if (window.particles) {
+          window.particles.spawnComicText(this.x, this.y, 70, "SPUN OUT!", "#ffd700");
+          window.particles.spawnDust(this.x, this.y, 16);
+        }
+      }
+
+      if (this.stateTimer > 40) {
+        this.state = 'walk';
+        this.hasFiredAttack = false;
+        this.attackCooldown = 60 + Math.random() * 30;
+      }
+      return;
+    }
+
+    // 8. Bruno Strongman Barbell Whirlwind
+    if (this.state === 'barbell_spin') {
+      this.stateTimer += dt;
+      this.vx = this.facing * 3.5;
+      if (Math.floor(this.stateTimer) % 4 === 0 && window.sfx) {
+        window.sfx.playBarbellSpin();
+      }
+
+      if (!this.hasFiredAttack && player.isAlive) {
+        const dist = Math.abs(this.x - player.x);
+        const depthDist = Math.abs(this.y - player.y);
+        if (dist <= 48 && depthDist <= 26 && player.z <= 30) {
+          this.hasFiredAttack = true;
+          if (!this.isTrainingDummy) player.takeDamage(this.attackDamage + 6, 8, true);
+          if (window.sfx) window.sfx.playBarbellClang();
+          if (window.camera) window.camera.shake(8);
+        }
+      }
+
+      if (this.stateTimer > 45) {
+        this.state = 'walk';
+        this.hasFiredAttack = false;
+        this.attackCooldown = 60 + Math.random() * 30;
+      }
+      return;
+    }
+
+    // 9. Mohawk Punk Flying Dropkick
     if (this.state === 'dropkick') {
       this.stateTimer += dt;
-      // Hit check while airborne
       if (!this.hasFiredAttack && this.z > 5 && player.isAlive) {
         const dist = Math.abs(this.x - player.x);
         const depthDist = Math.abs(this.y - player.y);
-        if (dist <= 36 && depthDist <= 22 && player.z <= 35) {
+        if (dist <= 38 && depthDist <= 24 && player.z <= 35) {
           this.hasFiredAttack = true;
-          if (!this.isTrainingDummy) {
-            player.takeDamage(this.attackDamage + 4, 6, true);
-          } else {
-            if (window.particles) window.particles.spawnComicText(player.x, player.y, player.z + 30, "DROPKICK!", "#ff0055");
-          }
+          if (!this.isTrainingDummy) player.takeDamage(this.attackDamage + 4, 6, true);
           if (window.sfx) window.sfx.playPunch();
         }
       }
@@ -355,7 +503,7 @@ class Enemy {
       return;
     }
 
-    // 6. Close-Range / Melee Attack (Knife stab, handbag smash, dog bite, dunk, bouncer hammer)
+    // 10. Close-Range / Melee Attack
     if (this.state === 'attack') {
       this.stateTimer += dt;
       if (!this.hasFiredAttack && this.stateTimer >= 8 && player.isAlive) {
@@ -365,19 +513,16 @@ class Enemy {
         if (dist <= this.attackRangeX + 20 && depthDist <= 26 && player.z <= 32) {
           if (!this.isTrainingDummy) {
             player.takeDamage(this.attackDamage, 4);
-          } else {
-            if (window.particles) window.particles.spawnComicText(player.x, player.y, player.z + 30, "PRACTICE!", "#aaffee");
           }
 
           if (this.type === 'granny' && window.sfx) window.sfx.playHandbag();
-          else if (this.type === 'dog' && window.sfx) window.sfx.playDogBark();
-          else if (this.type === 'bouncer') {
-            if (window.sfx) window.sfx.playPunch();
-            if (window.camera) window.camera.shake(6);
-            if (window.particles) window.particles.spawnDust(this.x + this.facing * 20, this.y, 16);
-          } else if (window.sfx) {
-            window.sfx.playPunch();
+          else if (this.type === 'dog' && window.sfx) {
+            window.sfx.playDogLatch();
+            if (window.particles) window.particles.spawnSonicRing(this.x, this.y, this.z, this.facing);
           }
+          else if (this.type === 'skater' && window.sfx) window.sfx.playSkateWhir();
+          else if (this.type === 'strongman' && window.sfx) window.sfx.playBarbellClang();
+          else if (window.sfx) window.sfx.playPunch();
         }
       }
 
@@ -397,70 +542,80 @@ class Enemy {
 
     this.facing = dx > 0 ? 1 : -1;
 
-    // --- DECIDE ATTACK BASED ON ENEMY TYPE & DISTANCE ---
+    // --- DECIDE SPECIAL ATTACKS ---
     if (this.attackCooldown <= 0 && player.isAlive) {
       if (this.type === 'granny') {
-        // Granny: If in ranged mode or at distance, throw purse! If close, heavy smash!
         if (dist >= 60 && dist <= 240 && depthDist <= 30) {
           this.state = 'throw_purse';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
           return;
         } else if (dist <= 48 && depthDist <= 24) {
-          this.state = 'attack';
-          this.stateTimer = 0;
-          this.hasFiredAttack = false;
-          this.vx = 0;
-          this.vy = 0;
-          return;
+          if (Math.random() < 0.35) {
+            this.state = 'umbrella_block';
+            this.stateTimer = 0;
+            if (window.sfx) window.sfx.playUmbrellaBlock();
+            return;
+          } else {
+            this.state = 'attack';
+            this.stateTimer = 0;
+            this.hasFiredAttack = false;
+            return;
+          }
         }
       } else if (this.type === 'basketballer') {
-        // Basketballer: If at distance, throw bouncing ball! If close, dunk!
-        if (dist >= 60 && dist <= 260 && depthDist <= 30) {
+        if (dist >= 70 && dist <= 260 && depthDist <= 30) {
           this.state = 'throw_ball';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
           return;
         } else if (dist <= 50 && depthDist <= 24) {
-          this.state = 'attack';
-          this.stateTimer = 0;
-          this.hasFiredAttack = false;
-          this.vx = 0;
-          this.vy = 0;
-          return;
+          if (Math.random() < 0.5) {
+            this.state = 'dunk_slam';
+            this.stateTimer = 0;
+            this.hasFiredAttack = false;
+            this.vz = 6.2;
+            this.vx = this.facing * 3.5;
+            return;
+          } else {
+            this.state = 'attack';
+            this.stateTimer = 0;
+            this.hasFiredAttack = false;
+            return;
+          }
         }
       } else if (this.type === 'punk') {
-        // Punk: If mid-range, launch Flying Dropkick! If close, knife stab!
-        if (dist >= 55 && dist <= 140 && depthDist <= 22 && Math.random() < 0.65) {
+        if (dist >= 55 && dist <= 150 && depthDist <= 24 && Math.random() < 0.65) {
           this.state = 'dropkick';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
-          this.vz = 4.6;
-          this.vx = this.facing * 4.2;
+          this.vz = 4.8;
+          this.vx = this.facing * 4.5;
           if (window.sfx) window.sfx.playWhoosh();
           return;
         } else if (dist <= 46 && depthDist <= 22) {
           this.state = 'attack';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
-          this.vx = 0;
-          this.vy = 0;
           return;
         }
       } else if (this.type === 'dog') {
-        // Dog: Fast leap bite
-        if (dist <= 60 && depthDist <= 24) {
+        if (dist <= 70 && depthDist <= 24) {
           this.state = 'attack';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
-          this.vz = 3.6;
-          this.vx = this.facing * 4.0;
+          this.vz = 3.8;
+          this.vx = this.facing * 4.2;
           if (window.sfx) window.sfx.playDogBark();
           return;
         }
       } else if (this.type === 'bouncer') {
-        // Bouncer: Mid-range bulldozer tackle, or close-range ground hammer!
-        if (dist >= 60 && dist <= 160 && depthDist <= 24 && Math.random() < 0.6) {
+        if (dist <= 42 && depthDist <= 20 && Math.random() < 0.45) {
+          this.state = 'airplane_spin';
+          this.stateTimer = 0;
+          this.hasFiredAttack = false;
+          return;
+        } else if (dist >= 60 && dist <= 170 && depthDist <= 24 && Math.random() < 0.6) {
           this.state = 'charge_tackle';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
@@ -470,20 +625,35 @@ class Enemy {
           this.state = 'attack';
           this.stateTimer = 0;
           this.hasFiredAttack = false;
-          this.vx = 0;
-          this.vy = 0;
+          return;
+        }
+      } else if (this.type === 'skater') {
+        if (dist <= 50 && depthDist <= 24) {
+          this.state = 'attack';
+          this.stateTimer = 0;
+          this.hasFiredAttack = false;
+          if (window.sfx) window.sfx.playSkateWhir();
+          return;
+        }
+      } else if (this.type === 'strongman') {
+        if (dist >= 50 && dist <= 180 && depthDist <= 28 && Math.random() < 0.55) {
+          this.state = 'barbell_spin';
+          this.stateTimer = 0;
+          this.hasFiredAttack = false;
+          return;
+        } else if (dist <= 52 && depthDist <= 24) {
+          this.state = 'attack';
+          this.stateTimer = 0;
+          this.hasFiredAttack = false;
           return;
         }
       }
     }
 
-    // Move towards player lane and offset based on attack mode
-    let targetOffsetX = 32;
-    if (this.type === 'basketballer') {
-      targetOffsetX = this.attackMode === 'ranged' ? 110 : 36;
-    } else if (this.type === 'granny') {
-      targetOffsetX = this.attackMode === 'ranged' ? 95 : 34;
-    }
+    // Move towards player lane
+    let targetOffsetX = 34;
+    if (this.type === 'basketballer') targetOffsetX = this.attackMode === 'ranged' ? 110 : 36;
+    else if (this.type === 'granny') targetOffsetX = this.attackMode === 'ranged' ? 95 : 34;
 
     const targetX = player.x + (-this.facing * targetOffsetX);
     const targetY = player.y;
@@ -532,7 +702,6 @@ class Enemy {
   render(ctx, camera) {
     if (this.isDespawned) return;
 
-    // Flash before disappearing
     if (!this.isAlive && this.despawnTimer <= 60 && Math.floor(this.despawnTimer / 4) % 2 === 0) {
       return;
     }
@@ -560,12 +729,16 @@ class Enemy {
       window.spriteRenderer.drawBasketballer(ctx, this.state, this.facing, this.animTimer);
     } else if (this.type === 'bouncer') {
       window.spriteRenderer.drawBouncer(ctx, this.state, this.facing, this.animTimer);
+    } else if (this.type === 'skater') {
+      window.spriteRenderer.drawSkater(ctx, this.state, this.facing, this.animTimer);
+    } else if (this.type === 'strongman') {
+      window.spriteRenderer.drawStrongman(ctx, this.state, this.facing, this.animTimer);
     }
 
     // Render Stun Stars if dazed
     if (this.stunTimer > 0 && this.isAlive) {
       const t = Date.now() * 0.01;
-      ctx.fillStyle = '#eeee77';
+      ctx.fillStyle = '#ffd700';
       for (let i = 0; i < 3; i++) {
         const angle = t + (i * Math.PI * 2 / 3);
         const starX = Math.cos(angle) * 16;

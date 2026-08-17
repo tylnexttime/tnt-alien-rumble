@@ -1,357 +1,465 @@
 /**
- * TNT ALIEN RUMBLE - VECTOR & RETRO SPRITE RENDERER
- * High-detail procedural vector sprite renderer for all characters,
- * styled in authentic Commodore 64 colors with fluid multi-frame animations.
+ * TNT ALIEN RUMBLE - AMIGA 500 RETRO SPRITE RENDERER
+ * High-detail Deluxe Paint IV styled OCS (32-color / RGB444) character rendering.
+ * Features rich 4-tone shading ramps, micro-dithering, specular glints,
+ * bioluminescent alien brain veins, and expressive multi-phase animation frames.
  */
 
 class SpriteRenderer {
   constructor() {
-    this.c64 = {
-      black: '#000000',
-      white: '#ffffff',
-      red: '#880000',
-      cyan: '#aaffee',
-      purple: '#cc44cc',
-      green: '#00cc55',
-      blue: '#0000aa',
-      yellow: '#eeee77',
-      orange: '#dd8855',
-      brown: '#664400',
-      lightRed: '#ff7777',
-      darkGrey: '#333333',
-      grey: '#777777',
-      lightGreen: '#aaff66',
-      lightBlue: '#0088ff',
-      lightGrey: '#bbbbbb',
-      skinAlien: '#a4b2bc',
-      skinAlienDark: '#6d7f8d',
-      skinHuman: '#e0a97c',
-      skinHumanDark: '#b87b4b'
+    // Amiga 500 OCS 32-Color Palette (12-bit RGB444 aesthetic)
+    this.amiga = {
+      // Alien Gray/Bio-plasma
+      alienHighlight: '#e4edf2',
+      alienMid: '#b2c2cc',
+      alienShadow: '#7d919e',
+      alienDeep: '#4c5d6a',
+      alienVein: '#39ff14',
+      alienGlow: '#00f0ff',
+      alienEye: '#0a0d12',
+      alienEyeGlint: '#ffffff',
+
+      // Human Skin Ramps (Caucasian / Duke / Granny / Punk / Bouncer)
+      skinHighlight: '#ffe2cf',
+      skinMid: '#f2b58d',
+      skinShadow: '#c47a4d',
+      skinDeep: '#7a3e20',
+
+      // Human Skin Ramps (Dark / Bronze / Hoops)
+      bronzeHighlight: '#c68d63',
+      bronzeMid: '#8e542e',
+      bronzeShadow: '#5c3116',
+      bronzeDeep: '#331607',
+
+      // Denim Blue Ramps
+      denimHighlight: '#8cb2ff',
+      denimMid: '#4b75d6',
+      denimShadow: '#264599',
+      denimDeep: '#101e4a',
+
+      // Leather Black & Steel Ramps
+      leatherHighlight: '#686b7e',
+      leatherMid: '#383b4b',
+      leatherShadow: '#1e202d',
+      leatherDeep: '#0c0d14',
+      metalHighlight: '#ffffff',
+      metalMid: '#a8b4c4',
+      metalShadow: '#586475',
+
+      // Punk Red / Mohawk
+      redHighlight: '#ff7755',
+      redMid: '#e62211',
+      redShadow: '#990000',
+      redDeep: '#4d0000',
+
+      // Granny Floral & Cardigan (Magenta/Purple)
+      purpleHighlight: '#ff99dd',
+      purpleMid: '#c6429f',
+      purpleShadow: '#7a195e',
+      purpleDeep: '#3d082c',
+      dressFloral: '#ffe6f2',
+
+      // Poodle White/Silver Ramps
+      furHighlight: '#ffffff',
+      furMid: '#e2ebf5',
+      furShadow: '#adc2d6',
+      furDeep: '#6e859b',
+
+      // Gold / Yellow (Duke Tank Top, Coins, Belts)
+      goldHighlight: '#fff480',
+      goldMid: '#f5c200',
+      goldShadow: '#b38000',
+      goldDeep: '#5c3d00',
+
+      // Neon / 80s Accents
+      neonGreen: '#39ff14',
+      neonCyan: '#00f7ff',
+      neonPink: '#ff007f',
+      neonOrange: '#ff6600'
     };
   }
 
-  // ==========================================
-  // 1. GLEEP-GLORP (ALIEN PROTAGONIST)
-  // ==========================================
+  // =========================================================================
+  // 1. GLEEP-GLORP (ALIEN PROTAGONIST - AMIGA 500 DELUXE EDITION)
+  // =========================================================================
   drawAlien(ctx, state, facing, animTimer, options = {}) {
     ctx.save();
     ctx.scale(facing, 1);
 
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
-    // Flash white when receiving damage / invulnerable
-    if (options.isInvulnerable && Math.floor(t * 10) % 2 === 0) {
-      ctx.fillStyle = '#ffffff';
+    // Flash white when invulnerable
+    if (options.isInvulnerable && Math.floor(t * 12) % 2 === 0) {
+      ctx.globalAlpha = 0.55;
     }
 
     switch (state) {
       case 'idle': {
-        const bob = Math.sin(t * 4) * 2;
-        // Shadow / Feet
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-8, -4, 6, 4);
-        ctx.fillRect(2, -4, 6, 4);
+        const breathe = Math.sin(t * 3.5);
+        const bob = breathe * 2.5;
 
-        // Skinny Legs
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6, -18, 3, 14);
-        ctx.fillRect(3, -18, 3, 14);
+        // Dynamic Alien Ground Shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 14, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-        // Spindly Torso
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-5, -34 + bob, 10, 16);
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-2, -30 + bob, 4, 10); // rib shading
+        // Spindly Alien Feet with 3 Toes
+        this.drawAlienFoot(ctx, -8, -1, pal);
+        this.drawAlienFoot(ctx, 4, -1, pal);
 
-        // Spindly Arms
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-9, -32 + bob, 3, 12);
-        ctx.fillRect(6, -32 + bob, 3, 12);
+        // Articulated Skinny Legs
+        this.drawAlienLeg(ctx, -6, -20, -7, -2, pal);
+        this.drawAlienLeg(ctx, 5, -20, 5, -2, pal);
 
-        // Giant Bulbous Gray Alien Head
-        this.drawAlienHead(ctx, 0, -48 + bob, 0);
+        // Slender Biomechanical Torso & Cybernetic Belt
+        this.drawAlienTorso(ctx, 0, -36 + bob, pal, t);
+
+        // Back Arm
+        this.drawAlienArm(ctx, -10, -34 + bob, -14, -20 + bob, pal, false);
+        // Front Arm with Glowing Wrist Gauntlet
+        this.drawAlienArm(ctx, 8, -34 + bob, 12, -20 + bob, pal, true, t);
+
+        // Translucent Cranium with Pulsing Cosmic Brain
+        this.drawAlienHead(ctx, 0, -50 + bob, 0, false, t);
         break;
       }
 
       case 'walk': {
-        const walkCycle = Math.sin(t * 10);
-        const leg1 = walkCycle * 8;
-        const leg2 = -walkCycle * 8;
-        const bob = Math.abs(Math.sin(t * 10)) * 2;
+        const walk = Math.sin(t * 9);
+        const leg1 = walk * 10;
+        const leg2 = -walk * 10;
+        const bob = Math.abs(Math.sin(t * 9)) * 3;
 
-        // Legs
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6 + leg1 * 0.5, -18, 3, 18);
-        ctx.fillRect(3 + leg2 * 0.5, -18, 3, 18);
-
-        // Feet
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-8 + leg1, -3, 6, 4);
-        ctx.fillRect(2 + leg2, -3, 6, 4);
+        // Feet & Legs
+        this.drawAlienFoot(ctx, -7 + leg1, -1, pal);
+        this.drawAlienFoot(ctx, 5 + leg2, -1, pal);
+        this.drawAlienLeg(ctx, -5, -20, -7 + leg1, -2, pal);
+        this.drawAlienLeg(ctx, 4, -20, 5 + leg2, -2, pal);
 
         // Torso
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-5, -34 + bob, 10, 16);
+        this.drawAlienTorso(ctx, 0, -36 + bob, pal, t);
 
-        // Arms swinging
-        ctx.fillRect(-9 - leg1 * 0.6, -32 + bob, 3, 12);
-        ctx.fillRect(6 - leg2 * 0.6, -32 + bob, 3, 12);
+        // Swinging Arms
+        this.drawAlienArm(ctx, -10, -34 + bob, -14 - leg1 * 0.8, -20 + bob, pal, false);
+        this.drawAlienArm(ctx, 8, -34 + bob, 12 + leg1 * 0.8, -20 + bob, pal, true, t);
 
-        // Head
-        this.drawAlienHead(ctx, 0, -48 + bob, walkCycle * 0.05);
+        // Head with slight swagger tilt
+        this.drawAlienHead(ctx, 0, -50 + bob, walk * 0.06, false, t);
         break;
       }
 
       case 'jab': {
-        // Quick 1-2 skinny punch
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6, -18, 4, 18);
-        ctx.fillRect(2, -18, 4, 18);
-        ctx.fillRect(-5, -34, 10, 16);
+        // High-speed 1-2 skinny punch
+        this.drawAlienFoot(ctx, -10, -1, pal);
+        this.drawAlienFoot(ctx, 4, -1, pal);
+        this.drawAlienLeg(ctx, -6, -20, -10, -2, pal);
+        this.drawAlienLeg(ctx, 4, -20, 6, -2, pal);
 
-        // Back arm tucked
-        ctx.fillRect(-9, -30, 4, 8);
-        // Punching extended arm
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(4, -30, 24, 4);
-        // Gray Alien Fist
-        ctx.fillStyle = c.skinAlienDark;
+        this.drawAlienTorso(ctx, 2, -36, pal, t);
+
+        // Back Arm tucked to chest
+        this.drawAlienArm(ctx, -10, -34, -8, -24, pal, false);
+
+        // Punching Arm extended far with energy blast
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(6, -34, 28, 5);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(6, -35, 28, 2);
+        // Fist
+        ctx.fillStyle = pal.alienShadow;
         ctx.beginPath();
-        ctx.arc(28, -28, 5, 0, Math.PI * 2);
+        ctx.arc(36, -32, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.beginPath();
+        ctx.arc(35, -34, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        this.drawAlienHead(ctx, 2, -48, 0.1);
+        // Punch speed glint
+        ctx.fillStyle = pal.alienGlow;
+        ctx.fillRect(38, -33, 8, 2);
+
+        this.drawAlienHead(ctx, 3, -50, 0.12, false, t);
         break;
       }
 
       case 'headbutt': {
-        // Rubber Stretchy Headbutt (The iconic Bop!)
-        const stretch = options.progress !== undefined ? Math.sin(options.progress * Math.PI) * 28 : 22;
+        // Elastic Rubber Headbutt (The Legendary Melbourne Bop!)
+        const stretch = options.progress !== undefined ? Math.sin(options.progress * Math.PI) * 36 : 28;
 
-        // Planted stance
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-10, -16, 4, 16);
-        ctx.fillRect(0, -16, 4, 16);
+        this.drawAlienFoot(ctx, -14, -1, pal);
+        this.drawAlienFoot(ctx, -2, -1, pal);
+        this.drawAlienLeg(ctx, -8, -18, -14, -2, pal);
+        this.drawAlienLeg(ctx, 0, -18, -2, -2, pal);
 
         // Leaning Torso
         ctx.save();
-        ctx.translate(-4, -28);
-        ctx.rotate(0.3);
-        ctx.fillRect(0, 0, 10, 16);
+        ctx.translate(-4, -26);
+        ctx.rotate(0.35);
+        this.drawAlienTorso(ctx, 0, 0, pal, t);
         ctx.restore();
 
-        // Stretched rubber neck
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(0, -40, stretch, 6);
+        // Stretched Rubber Neck with Muscle Fiber Bands
+        ctx.fillStyle = pal.alienShadow;
+        ctx.fillRect(2, -42, stretch, 8);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(2, -43, stretch, 2);
+        ctx.fillStyle = pal.alienVein;
+        ctx.fillRect(4, -40, stretch - 4, 2); // Glowing neck sinew
 
-        // Head shooting forward
-        this.drawAlienHead(ctx, stretch + 6, -42, 0.4);
+        // Shooting Head with dynamic angle
+        this.drawAlienHead(ctx, stretch + 8, -44, 0.5, true, t);
 
-        // Impact spark trail
-        ctx.fillStyle = c.cyan;
-        ctx.fillRect(stretch - 4, -44, 3, 3);
-        ctx.fillRect(stretch - 10, -38, 4, 4);
+        // Comic Kinetic Sparks
+        ctx.fillStyle = pal.neonCyan;
+        ctx.fillRect(stretch - 2, -48, 4, 4);
+        ctx.fillRect(stretch - 8, -38, 5, 3);
+        ctx.fillRect(stretch + 4, -46, 3, 3);
         break;
       }
 
       case 'trip': {
-        // Low Trip / Shin Grab (fondling ankles)
-        ctx.fillStyle = c.skinAlien;
-        // Crouched legs
-        ctx.fillRect(-12, -8, 12, 6);
-        ctx.fillRect(2, -8, 10, 6);
+        // Low Shin Grab / Ankle Sweep
+        ctx.fillStyle = pal.alienShadow;
+        // Crouched splayed legs
+        this.drawAlienLeg(ctx, -14, -10, -20, -1, pal);
+        this.drawAlienLeg(ctx, 0, -10, 8, -1, pal);
+        this.drawAlienFoot(ctx, -20, -1, pal);
+        this.drawAlienFoot(ctx, 8, -1, pal);
 
         // Low Torso
-        ctx.fillRect(-8, -18, 12, 10);
+        this.drawAlienTorso(ctx, -4, -18, pal, t);
 
-        // Extended arms grabbing ground
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(4, -12, 22, 4);
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(26, -14, 6, 6);
+        // Extended Arms sweeping ground
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(4, -14, 26, 5);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(4, -15, 26, 2);
+        // Spindly Claws Grabbing
+        ctx.fillStyle = pal.alienDeep;
+        ctx.fillRect(28, -16, 8, 7);
+        ctx.fillStyle = pal.alienGlow;
+        ctx.fillRect(32, -18, 3, 3);
 
-        this.drawAlienHead(ctx, 4, -26, 0.2);
+        this.drawAlienHead(ctx, 6, -28, 0.25, false, t);
         break;
       }
 
       case 'bulldozer': {
-        // Bull Ram / Bulldozer rocket dash
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-16, -12, 12, 6);
-        ctx.fillRect(-4, -12, 12, 6);
+        // Bulldozer Rocket Dash / Bull Ram
+        // Sprinted low body
+        this.drawAlienLeg(ctx, -18, -14, -26, -3, pal);
+        this.drawAlienLeg(ctx, -6, -14, -12, -3, pal);
+        this.drawAlienFoot(ctx, -26, -2, pal);
+        this.drawAlienFoot(ctx, -12, -2, pal);
 
         // Horizontal Torso
-        ctx.fillRect(-14, -22, 18, 10);
+        ctx.save();
+        ctx.translate(-8, -20);
+        ctx.rotate(0.6);
+        this.drawAlienTorso(ctx, 0, 0, pal, t);
+        ctx.restore();
 
-        // Arms tucked back like speed skater
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-22, -26, 12, 4);
+        // Arms tucked back like speed racer
+        ctx.fillStyle = pal.alienShadow;
+        ctx.fillRect(-26, -28, 16, 5);
+        ctx.fillStyle = pal.alienGlow;
+        ctx.fillRect(-28, -27, 4, 3);
 
-        // Lowered Alien Skull Ram
-        this.drawAlienHead(ctx, 12, -24, 0.65);
+        // Armored Cranium Ramming Forward
+        this.drawAlienHead(ctx, 16, -26, 0.75, true, t);
 
-        // Ram speed lines
-        ctx.fillStyle = c.cyan;
-        ctx.fillRect(-30, -22, 12, 2);
-        ctx.fillRect(-26, -16, 8, 2);
-        ctx.fillRect(-34, -28, 14, 2);
+        // Rocket Jet Exhaust Trails
+        const ex = Math.sin(t * 25) * 6;
+        ctx.fillStyle = pal.neonCyan;
+        ctx.fillRect(-38 + ex, -24, 14, 3);
+        ctx.fillStyle = pal.neonGreen;
+        ctx.fillRect(-32 + ex, -18, 10, 3);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-42 + ex, -23, 8, 2);
         break;
       }
 
       case 'ear_twist': {
-        // Ear Twist / Cheek Pinch
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6, -18, 4, 18);
-        ctx.fillRect(2, -18, 4, 18);
-        ctx.fillRect(-5, -34, 10, 16);
+        // Ear Twist / Cheek Pinch Grab
+        this.drawAlienFoot(ctx, -6, -1, pal);
+        this.drawAlienFoot(ctx, 4, -1, pal);
+        this.drawAlienLeg(ctx, -4, -20, -6, -2, pal);
+        this.drawAlienLeg(ctx, 4, -20, 4, -2, pal);
+        this.drawAlienTorso(ctx, 0, -36, pal, t);
 
-        // Two spindly arms grabbing opponent's ears
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(4, -36, 18, 3);
-        ctx.fillRect(4, -26, 18, 3);
-        // Hands twisting
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(22, -38, 5, 5);
-        ctx.fillRect(22, -28, 5, 5);
+        // Dual Spindly Arms Reaching Forward Twisting Opponent
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(4, -38, 22, 4);
+        ctx.fillRect(4, -28, 22, 4);
+        // Alien Fingers Twisting
+        ctx.fillStyle = pal.alienDeep;
+        ctx.fillRect(24, -40, 6, 7);
+        ctx.fillRect(24, -30, 6, 7);
+        ctx.fillStyle = pal.neonPink; // Pain sparks
+        ctx.fillRect(28, -42, 4, 4);
+        ctx.fillRect(28, -26, 4, 4);
 
-        this.drawAlienHead(ctx, 0, -48, -0.1);
+        this.drawAlienHead(ctx, -2, -50, -0.1, false, t);
         break;
       }
 
       case 'belly_flop': {
-        // Flying Belly Flop (splayed out in mid air)
+        // Airborne Splayed Belly Flop (Mid-air squishy impact)
         ctx.save();
-        ctx.rotate(0.3);
-        // Wide wobbly belly
-        ctx.fillStyle = c.skinAlien;
+        ctx.rotate(0.25);
+        // Plump wobbly Alien Belly
+        ctx.fillStyle = pal.alienMid;
         ctx.beginPath();
-        ctx.ellipse(0, -25, 14, 9, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -28, 18, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.beginPath();
+        ctx.ellipse(0, -32, 14, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Arms and legs splayed
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-18, -32, 6, 4);
-        ctx.fillRect(12, -32, 6, 4);
-        ctx.fillRect(-18, -18, 6, 4);
-        ctx.fillRect(12, -18, 6, 4);
+        // Splayed limbs
+        ctx.fillStyle = pal.alienShadow;
+        ctx.fillRect(-22, -36, 8, 5);
+        ctx.fillRect(14, -36, 8, 5);
+        ctx.fillRect(-22, -22, 8, 5);
+        ctx.fillRect(14, -22, 8, 5);
 
-        this.drawAlienHead(ctx, 0, -38, 0);
+        this.drawAlienHead(ctx, 0, -42, 0, false, t);
         ctx.restore();
         break;
       }
 
       case 'roundhouse': {
-        // Flying Dropkick / Roundhouse
+        // Flying Dropkick / Airborne Double Kick
         ctx.save();
-        ctx.rotate(-0.4);
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-8, -25, 10, 14);
+        ctx.rotate(-0.35);
+        this.drawAlienTorso(ctx, -8, -24, pal, t);
 
-        // Extended double legs
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(4, -26, 26, 6);
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(28, -28, 8, 8); // Feet impact
+        // Extended Dual Legs Kicking Forward
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(4, -26, 30, 7);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(4, -27, 30, 2);
+        // High-velocity Feet
+        this.drawAlienFoot(ctx, 32, -28, pal);
+        this.drawAlienFoot(ctx, 36, -22, pal);
 
-        this.drawAlienHead(ctx, -14, -36, -0.3);
+        this.drawAlienHead(ctx, -18, -38, -0.3, true, t);
         ctx.restore();
         break;
       }
 
       case 'macho_elbow': {
-        // Descending Macho Elbow
+        // Descending Macho Alien Elbow
         ctx.save();
-        ctx.rotate(0.5);
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6, -30, 10, 14);
+        ctx.rotate(0.45);
+        this.drawAlienTorso(ctx, -4, -30, pal, t);
 
-        // Pointed Sharp Alien Elbow
-        ctx.fillStyle = c.skinAlienDark;
+        // Pointed Sharp Alien Elbow Smash
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.beginPath();
+        ctx.moveTo(8, -28);
+        ctx.lineTo(26, -14);
+        ctx.lineTo(16, -6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = pal.alienShadow;
         ctx.beginPath();
         ctx.moveTo(6, -26);
-        ctx.lineTo(22, -12);
+        ctx.lineTo(24, -14);
         ctx.lineTo(14, -6);
         ctx.closePath();
         ctx.fill();
 
-        this.drawAlienHead(ctx, -4, -42, 0.2);
+        this.drawAlienHead(ctx, -6, -44, 0.2, true, t);
         ctx.restore();
         break;
       }
 
       case 'donkey_kick': {
         // Mule Back Kick
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(2, -18, 4, 18);
-        ctx.fillRect(-4, -30, 10, 14);
+        this.drawAlienFoot(ctx, 4, -1, pal);
+        this.drawAlienLeg(ctx, 4, -20, 4, -2, pal);
+        this.drawAlienTorso(ctx, 0, -34, pal, t);
 
-        // Back leg kicking backwards hard
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-26, -24, 22, 5);
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-30, -26, 6, 7);
+        // Back leg blasting straight backward
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(-30, -26, 26, 6);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(-30, -27, 26, 2);
+        this.drawAlienFoot(ctx, -34, -28, pal);
 
-        this.drawAlienHead(ctx, 4, -44, 0.2);
+        this.drawAlienHead(ctx, 6, -48, 0.2, false, t);
         break;
       }
 
       case 'taunt': {
-        // Alien Taunt (Wiggling antennae & hips)
-        const wiggle = Math.sin(t * 18) * 4;
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-6, -18, 4, 18);
-        ctx.fillRect(2, -18, 4, 18);
+        // Cosmic Taunt (Wiggling antennae, hips & glowing gauntlet)
+        const wiggle = Math.sin(t * 18) * 5;
+        this.drawAlienFoot(ctx, -6, -1, pal);
+        this.drawAlienFoot(ctx, 4, -1, pal);
+        this.drawAlienLeg(ctx, -4, -20, -6, -2, pal);
+        this.drawAlienLeg(ctx, 4, -20, 4, -2, pal);
 
-        // Wiggling hips
-        ctx.fillRect(-6 + wiggle, -34, 12, 16);
+        this.drawAlienTorso(ctx, wiggle, -36, pal, t);
 
-        // Hands on hips
-        ctx.fillRect(-10 + wiggle, -30, 4, 8);
-        ctx.fillRect(6 + wiggle, -30, 4, 8);
+        // Hands on hips wiggling
+        this.drawAlienArm(ctx, -10 + wiggle, -34, -16 + wiggle, -24, pal, false);
+        this.drawAlienArm(ctx, 8 + wiggle, -34, 14 + wiggle, -24, pal, true, t);
 
-        this.drawAlienHead(ctx, -wiggle * 0.5, -48, wiggle * 0.08, true);
+        this.drawAlienHead(ctx, -wiggle * 0.4, -50, wiggle * 0.08, true, t);
         break;
       }
 
       case 'hurt': {
-        // Recoil / Knockback
         ctx.save();
         ctx.rotate(-0.35);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-6, -18, 4, 18);
-        ctx.fillRect(2, -18, 4, 18);
-        ctx.fillRect(-6, -34, 10, 16);
+        this.drawAlienFoot(ctx, -8, -1, pal);
+        this.drawAlienFoot(ctx, 2, -1, pal);
+        this.drawAlienLeg(ctx, -6, -18, -8, -2, pal);
+        this.drawAlienLeg(ctx, 2, -18, 2, -2, pal);
 
-        this.drawAlienHead(ctx, -4, -48, -0.4);
+        ctx.fillStyle = pal.redMid;
+        this.drawAlienTorso(ctx, -4, -34, pal, t);
+        this.drawAlienHead(ctx, -6, -48, -0.4, false, t);
         ctx.restore();
         break;
       }
 
       case 'knockdown': {
-        // Flat on ground
+        // Flat on back with dazed stars
         ctx.save();
         ctx.translate(0, -6);
-        ctx.fillStyle = c.skinAlienDark;
-        ctx.fillRect(-24, -4, 48, 8);
-        this.drawAlienHead(ctx, -26, -12, -Math.PI / 2);
+        ctx.fillStyle = pal.alienShadow;
+        ctx.fillRect(-28, -6, 56, 10);
+        ctx.fillStyle = pal.alienHighlight;
+        ctx.fillRect(-28, -7, 56, 2);
+        this.drawAlienHead(ctx, -30, -14, -Math.PI / 2, false, t);
         ctx.restore();
         break;
       }
 
       case 'victory': {
-        // Alien Breakdance / Victory pose
+        // Cosmic Alien Breakdance / Victory
         const dance = Math.sin(t * 12) * 6;
-        ctx.fillStyle = c.skinAlien;
-        ctx.fillRect(-8, -18 + Math.abs(dance), 4, 18);
-        ctx.fillRect(4, -18 - Math.abs(dance), 4, 18);
-        ctx.fillRect(-6, -34, 12, 16);
+        this.drawAlienFoot(ctx, -8, -1 + Math.abs(dance), pal);
+        this.drawAlienFoot(ctx, 4, -1 - Math.abs(dance), pal);
+        this.drawAlienTorso(ctx, 0, -36, pal, t);
 
-        // Arms raised in V
-        ctx.fillRect(-14, -46, 4, 14);
-        ctx.fillRect(10, -46, 4, 14);
+        // Arms raised in V with glowing energy orbs
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(-16, -50, 4, 16);
+        ctx.fillRect(12, -50, 4, 16);
+        ctx.fillStyle = pal.neonGreen;
+        ctx.beginPath();
+        ctx.arc(-14, -54, 5, 0, Math.PI * 2);
+        ctx.arc(14, -54, 5, 0, Math.PI * 2);
+        ctx.fill();
 
-        this.drawAlienHead(ctx, dance * 0.3, -48, dance * 0.05, true);
+        this.drawAlienHead(ctx, dance * 0.2, -50, dance * 0.05, true, t);
         break;
       }
     }
@@ -359,149 +467,259 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // Draw Gleep-Glorp's classic bulbous head with glossy almond eyes
-  drawAlienHead(ctx, x, y, angle = 0, isGlow = false) {
+  drawAlienFoot(ctx, x, y, pal) {
+    ctx.fillStyle = pal.alienDeep;
+    ctx.fillRect(x - 3, y - 3, 8, 4);
+    ctx.fillStyle = pal.alienHighlight;
+    ctx.fillRect(x - 3, y - 4, 8, 1); // Toe highlight
+  }
+
+  drawAlienLeg(ctx, topX, topY, botX, botY, pal) {
+    ctx.strokeStyle = pal.alienMid;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(topX, topY);
+    ctx.lineTo(botX, botY);
+    ctx.stroke();
+
+    ctx.strokeStyle = pal.alienHighlight;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(topX - 1, topY);
+    ctx.lineTo(botX - 1, botY);
+    ctx.stroke();
+  }
+
+  drawAlienTorso(ctx, x, y, pal, t) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Slim Gray Alien Ribcage
+    ctx.fillStyle = pal.alienMid;
+    ctx.fillRect(-6, 0, 12, 18);
+
+    // Highlights & Shadows
+    ctx.fillStyle = pal.alienHighlight;
+    ctx.fillRect(-6, 0, 2, 18);
+    ctx.fillStyle = pal.alienShadow;
+    ctx.fillRect(4, 0, 2, 18);
+
+    // Rib contours
+    ctx.fillStyle = pal.alienDeep;
+    ctx.fillRect(-4, 4, 8, 1.5);
+    ctx.fillRect(-4, 8, 8, 1.5);
+    ctx.fillRect(-4, 12, 8, 1.5);
+
+    // Biomechanical Cybernetic Utility Belt
+    ctx.fillStyle = pal.leatherMid;
+    ctx.fillRect(-7, 16, 14, 4);
+    ctx.fillStyle = pal.goldMid;
+    ctx.fillRect(-2, 16, 4, 4); // Buckle
+    ctx.fillStyle = pal.alienGlow;
+    ctx.fillRect(-1, 17, 2, 2); // Belt Power LED
+
+    ctx.restore();
+  }
+
+  drawAlienArm(ctx, shoulderX, shoulderY, handX, handY, pal, hasGauntlet = false, t = 0) {
+    ctx.strokeStyle = pal.alienMid;
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(shoulderX, shoulderY);
+    ctx.lineTo(handX, handY);
+    ctx.stroke();
+
+    if (hasGauntlet) {
+      // Biomechanical Wrist Gauntlet with Plasma Meter
+      ctx.fillStyle = pal.leatherMid;
+      ctx.fillRect(handX - 3, handY - 4, 6, 7);
+      ctx.fillStyle = pal.alienGlow;
+      ctx.fillRect(handX - 2, handY - 2, 4, 3);
+      // Plasma Spark
+      const glow = Math.sin(t * 15) > 0;
+      if (glow) {
+        ctx.fillStyle = pal.neonGreen;
+        ctx.fillRect(handX - 1, handY - 1, 2, 2);
+      }
+    }
+  }
+
+  // Draw Gleep-Glorp's Translucent Cranium with Pulsing Cosmic Brain Veins
+  drawAlienHead(ctx, x, y, angle = 0, isGlow = false, t = 0) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
 
-    const c = this.c64;
+    const pal = this.amiga;
 
-    // Giant Cranium Ellipse
-    ctx.fillStyle = isGlow ? c.lightGreen : c.skinAlien;
+    // Giant Bulbous Alien Skull (Classic Area 51 / Melbourne House Gray)
+    ctx.fillStyle = isGlow ? pal.alienHighlight : pal.alienMid;
     ctx.beginPath();
-    ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, 15, 19, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Subtle head gradient / highlight
-    ctx.fillStyle = c.white;
-    ctx.globalAlpha = 0.35;
+    // Cranium 3D Specular Highlight Ramp
+    ctx.fillStyle = pal.alienHighlight;
     ctx.beginPath();
-    ctx.ellipse(-3, -8, 5, 4, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(-4, -8, 7, 6, -0.3, 0, Math.PI * 2);
     ctx.fill();
-    ctx.globalAlpha = 1.0;
 
-    // Chin taper
-    ctx.fillStyle = isGlow ? c.lightGreen : c.skinAlienDark;
+    // Translucent Inner Brain Silhouette & Pulsing Neural Veins
+    const pulse = 0.4 + Math.sin(t * 8) * 0.35;
+    ctx.fillStyle = `rgba(57, 255, 20, ${pulse})`;
     ctx.beginPath();
-    ctx.moveTo(-8, 8);
-    ctx.lineTo(8, 8);
-    ctx.lineTo(0, 18);
+    ctx.arc(0, -7, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Neural Vein Filaments
+    ctx.strokeStyle = pal.alienVein;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-3, -11);
+    ctx.lineTo(-1, -7);
+    ctx.lineTo(2, -8);
+    ctx.lineTo(4, -5);
+    ctx.stroke();
+
+    // Tapered Alien Chin & Cheekbones
+    ctx.fillStyle = pal.alienShadow;
+    ctx.beginPath();
+    ctx.moveTo(-9, 8);
+    ctx.lineTo(9, 8);
+    ctx.lineTo(0, 19);
     ctx.closePath();
     ctx.fill();
 
-    // Glossy Black Almond Eyes
-    ctx.fillStyle = c.black;
-    // Left eye
+    // Glossy Multifaceted Black Almond Eyes with Amiga Specular Glints
+    ctx.fillStyle = pal.alienEye;
+    // Left Eye
     ctx.beginPath();
-    ctx.ellipse(-6, 2, 4.5, 7.5, -0.35, 0, Math.PI * 2);
+    ctx.ellipse(-7, 3, 5, 8.5, -0.38, 0, Math.PI * 2);
     ctx.fill();
-    // Right eye
+    // Right Eye
     ctx.beginPath();
-    ctx.ellipse(6, 2, 4.5, 7.5, 0.35, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eye Glints
-    ctx.fillStyle = c.white;
-    ctx.beginPath();
-    ctx.arc(-7, 0, 1.5, 0, Math.PI * 2);
-    ctx.arc(5, 0, 1.5, 0, Math.PI * 2);
+    ctx.ellipse(7, 3, 5, 8.5, 0.38, 0, Math.PI * 2);
     ctx.fill();
 
-    // Tiny alien nostril slits & mouth
-    ctx.fillStyle = c.skinAlienDark;
-    ctx.fillRect(-2, 10, 1.5, 1.5);
-    ctx.fillRect(1, 10, 1.5, 1.5);
-    ctx.fillRect(-3, 14, 6, 1);
+    // Dual Specular Glints (Gives wet glassy 3D look)
+    ctx.fillStyle = pal.alienEyeGlint;
+    ctx.beginPath();
+    ctx.arc(-8, 0, 1.8, 0, Math.PI * 2);
+    ctx.arc(-6, 4, 1.0, 0, Math.PI * 2);
+    ctx.arc(6, 0, 1.8, 0, Math.PI * 2);
+    ctx.arc(8, 4, 1.0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Nostril Slits & Narrow Alien Mouth
+    ctx.fillStyle = pal.alienDeep;
+    ctx.fillRect(-2, 11, 1.5, 1.5);
+    ctx.fillRect(1, 11, 1.5, 1.5);
+    ctx.fillRect(-3, 15, 6, 1.5);
+
+    // Twin Bioluminescent Antennae
+    const antWave = Math.sin(t * 12) * 2;
+    ctx.strokeStyle = pal.alienShadow;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-6, -17);
+    ctx.quadraticCurveTo(-10 + antWave, -26, -12 + antWave, -30);
+    ctx.moveTo(6, -17);
+    ctx.quadraticCurveTo(10 - antWave, -26, 12 - antWave, -30);
+    ctx.stroke();
+
+    // Glowing Antenna Tip Orbs
+    ctx.fillStyle = pal.alienGlow;
+    ctx.beginPath();
+    ctx.arc(-12 + antWave, -30, 2.5, 0, Math.PI * 2);
+    ctx.arc(12 - antWave, -30, 2.5, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
   }
 
-  // ==========================================
-  // 2. MOHAWK STREET PUNK (ENEMY)
-  // ==========================================
+  // =========================================================================
+  // 2. MOHAWK STREET PUNK (SPIKE - AMIGA 500 EDITION)
+  // =========================================================================
   drawPunk(ctx, state, facing, animTimer) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
     switch (state) {
       case 'walk': {
-        const walk = Math.sin(t * 8) * 6;
-        // Torn Jeans
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-8 + walk, -18, 6, 18);
-        ctx.fillRect(2 - walk, -18, 6, 18);
-        // Boots
-        ctx.fillStyle = c.darkGrey;
-        ctx.fillRect(-10 + walk, -3, 8, 4);
-        ctx.fillRect(0 - walk, -3, 8, 4);
+        const walk = Math.sin(t * 8) * 7;
+        // Torn Jeans with knee patches
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-8 + walk, -20, 6, 20);
+        ctx.fillRect(3 - walk, -20, 6, 20);
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(-7 + walk, -12, 4, 3); // Ripped knee hole
 
-        // Leather Studded Jacket
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-8, -38, 16, 20);
-        // Belt with skull
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-2, -20, 4, 3);
+        // Heavy Combat Boots
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.fillRect(-10 + walk, -4, 9, 5);
+        ctx.fillRect(1 - walk, -4, 9, 5);
+        ctx.fillStyle = pal.metalMid;
+        ctx.fillRect(-6 + walk, -4, 2, 2); // Steel eyelets
 
-        // Swagger Arms with Switchblade
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(6, -34, 12, 5);
-        ctx.fillStyle = c.cyan; // Blade
-        ctx.fillRect(18, -33, 8, 2);
+        // Studded Motorcycle Leather Jacket with Zippers
+        ctx.fillStyle = pal.leatherMid;
+        ctx.fillRect(-9, -40, 18, 22);
+        ctx.fillStyle = pal.leatherHighlight;
+        ctx.fillRect(-9, -40, 3, 22);
+        // Silver Zippers & Skull Belt
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(-1, -38, 2, 16);
+        ctx.fillRect(-3, -20, 6, 3);
 
-        // Punk Head with Red Mohawk
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -50, 11, 12);
-        ctx.fillStyle = c.red; // Mohawk
-        ctx.fillRect(-2, -58, 5, 8);
-        // Sunglasses
-        ctx.fillStyle = c.black;
-        ctx.fillRect(0, -46, 7, 3);
+        // Swagger Arms holding Glistening Switchblade
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(8, -36, 12, 5);
+        // Metallic Knife Blade with Glint
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(20, -35, 10, 3);
+        ctx.fillStyle = pal.neonCyan;
+        ctx.fillRect(28, -36, 3, 2); // Glint
+
+        // Head with Textured Spiked Mohawk
+        this.drawPunkHead(ctx, 0, -52, pal, t);
         break;
       }
 
       case 'attack': {
-        // Knife stab lunge
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-10, -18, 6, 18);
-        ctx.fillRect(4, -18, 6, 18);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-8, -38, 16, 20);
+        // Switchblade Shank Lunge
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-12, -20, 7, 20);
+        ctx.fillRect(5, -20, 7, 20);
+        ctx.fillStyle = pal.leatherMid;
+        ctx.fillRect(-9, -40, 18, 22);
 
-        // Lunge arm with blade
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(6, -34, 18, 5);
-        ctx.fillStyle = c.cyan;
-        ctx.fillRect(24, -34, 12, 3);
+        // Lunge Arm with Blade Thrusting Forward
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(8, -36, 20, 6);
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(28, -36, 14, 3);
+        ctx.fillStyle = pal.neonCyan;
+        ctx.fillRect(40, -37, 4, 2);
 
-        // Head
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-2, -50, 11, 12);
-        ctx.fillStyle = c.red;
-        ctx.fillRect(1, -58, 5, 8);
+        this.drawPunkHead(ctx, 3, -52, pal, t);
         break;
       }
 
       case 'dropkick': {
-        // Horizontal Mid-Air Flying Dropkick
+        // Horizontal Airborne Dropkick
         ctx.save();
-        ctx.rotate(-0.3);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-16, -26, 18, 14); // Torso
+        ctx.rotate(-0.35);
+        ctx.fillStyle = pal.leatherMid;
+        ctx.fillRect(-18, -28, 20, 15);
 
-        // Extended double kicking legs
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(2, -22, 22, 7);
-        ctx.fillStyle = c.darkGrey;
-        ctx.fillRect(24, -24, 8, 9); // Boots out
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(2, -24, 24, 8);
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.fillRect(26, -26, 9, 11);
 
-        // Head & flying mohawk
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-26, -32, 10, 10);
-        ctx.fillStyle = c.red;
-        ctx.fillRect(-32, -36, 12, 6);
+        this.drawPunkHead(ctx, -26, -34, pal, t);
         ctx.restore();
         break;
       }
@@ -509,60 +727,38 @@ class SpriteRenderer {
       case 'hurt': {
         ctx.save();
         ctx.rotate(-0.35);
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-6, -18, 6, 18);
-        ctx.fillRect(2, -18, 6, 18);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-8, -38, 16, 20);
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -50, 11, 12);
-        ctx.fillStyle = c.red;
-        ctx.fillRect(-2, -58, 5, 8);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-6, -20, 6, 20);
+        ctx.fillRect(3, -20, 6, 20);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-9, -40, 18, 22);
+        this.drawPunkHead(ctx, -5, -52, pal, t);
         ctx.restore();
         break;
       }
 
       case 'knockdown': {
-        // Horizontal Defeated Punk Flat on Asphalt
+        // Flat on Back with Broken Sunglasses
         ctx.save();
         ctx.translate(0, -6);
-        // Boots
-        ctx.fillStyle = c.darkGrey;
-        ctx.fillRect(-32, -4, 10, 8);
-        // Torn Jeans
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-24, -5, 20, 9);
-        // Studded Leather Jacket
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-6, -8, 22, 13);
-        ctx.fillStyle = c.white; // Studs
-        ctx.fillRect(-4, -6, 3, 3);
-        ctx.fillRect(4, -6, 3, 3);
-        // Head & Mohawk Flat
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(16, -10, 12, 11);
-        ctx.fillStyle = c.red; // Mohawk touching floor
-        ctx.fillRect(18, -16, 14, 6);
-        // Shades Knocked Crooked
-        ctx.fillStyle = c.black;
-        ctx.fillRect(26, -4, 6, 4);
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.fillRect(-34, -4, 11, 8);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-24, -6, 22, 10);
+        ctx.fillStyle = pal.leatherMid;
+        ctx.fillRect(-4, -9, 24, 14);
+        this.drawPunkHead(ctx, 22, -12, pal, t, true);
         ctx.restore();
         break;
       }
 
       default: {
-        // Idle
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-6, -18, 5, 18);
-        ctx.fillRect(2, -18, 5, 18);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-8, -38, 16, 20);
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -50, 11, 12);
-        ctx.fillStyle = c.red;
-        ctx.fillRect(-2, -58, 5, 8);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(0, -46, 7, 3);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-7, -20, 6, 20);
+        ctx.fillRect(3, -20, 6, 20);
+        ctx.fillStyle = pal.leatherMid;
+        ctx.fillRect(-9, -40, 18, 22);
+        this.drawPunkHead(ctx, 0, -52, pal, t);
         break;
       }
     }
@@ -570,207 +766,188 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // ==========================================
-  // 3. HANDBAG GRANNY AGNES (ENEMY)
-  // ==========================================
+  drawPunkHead(ctx, x, y, pal, t, isKnocked = false) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Face
+    ctx.fillStyle = pal.skinMid;
+    ctx.fillRect(-6, -6, 12, 13);
+    ctx.fillStyle = pal.skinHighlight;
+    ctx.fillRect(-6, -6, 3, 13);
+
+    // Spiked Textured Punk Mohawk (Orange & Red Ramps)
+    ctx.fillStyle = pal.redMid;
+    ctx.fillRect(-3, -18, 6, 13);
+    ctx.fillStyle = pal.redHighlight;
+    ctx.fillRect(-1, -20, 3, 15); // Spikes
+    ctx.fillRect(-2, -22, 4, 3);
+    ctx.fillRect(1, -24, 2, 4);
+
+    // Dark Aviator Sunglasses with Horizon Specular Reflection
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-1, -2, 8, 4);
+    ctx.fillStyle = pal.metalHighlight;
+    ctx.fillRect(0, -2, 2, 2); // Lens Glint
+
+    // Sneering Mouth
+    ctx.fillStyle = pal.skinDeep;
+    ctx.fillRect(0, 4, 6, 2);
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 3. HANDBAG GRANNY (AGNES - AMIGA 500 EDITION)
+  // =========================================================================
   drawGranny(ctx, state, facing, animTimer) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
     switch (state) {
       case 'walk': {
         const w = Math.sin(t * 6) * 4;
-        // Slippers
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8 + w, -3, 6, 3);
-        ctx.fillRect(2 - w, -3, 6, 3);
+        // Fuzzy Slippers
+        ctx.fillStyle = pal.purpleMid;
+        ctx.fillRect(-9 + w, -4, 7, 4);
+        ctx.fillRect(3 - w, -4, 7, 4);
 
-        // Floral Dress
-        ctx.fillStyle = c.lightRed;
+        // Floral Pattern Dress with 3D folds
+        ctx.fillStyle = pal.purpleHighlight;
         ctx.beginPath();
-        ctx.moveTo(-10, -18);
-        ctx.lineTo(10, -18);
-        ctx.lineTo(14, -4);
-        ctx.lineTo(-14, -4);
+        ctx.moveTo(-11, -20);
+        ctx.lineTo(11, -20);
+        ctx.lineTo(15, -4);
+        ctx.lineTo(-15, -4);
         ctx.closePath();
         ctx.fill();
 
-        // Upper Cardigan
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -36, 16, 18);
+        // Floral Print Dots
+        ctx.fillStyle = pal.dressFloral;
+        ctx.fillRect(-8, -14, 2, 2);
+        ctx.fillRect(4, -16, 2, 2);
+        ctx.fillRect(-4, -8, 2, 2);
+        ctx.fillRect(6, -10, 2, 2);
+
+        // Warm Cardigan & Pearl Necklace
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-9, -38, 18, 18);
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(-4, -36, 8, 2); // Pearl necklace
 
         // Massive Heavy Handbag Swing
-        ctx.fillStyle = c.brown;
-        ctx.fillRect(8, -28 + w * 2, 12, 14);
-        ctx.fillStyle = c.yellow; // Clasp
-        ctx.fillRect(12, -30 + w * 2, 4, 3);
+        ctx.fillStyle = pal.skinDeep;
+        ctx.fillRect(10, -28 + w * 2, 14, 15);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(14, -30 + w * 2, 6, 3); // Metal clasp
 
-        // Granny Head with Curlers
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -48, 11, 12);
-        ctx.fillStyle = c.lightGrey; // Curly hair
-        ctx.fillRect(-8, -52, 16, 6);
-        ctx.fillStyle = c.cyan; // Curlers
-        ctx.fillRect(-7, -54, 4, 4);
-        ctx.fillRect(2, -54, 4, 4);
-
-        // Cat-eye Glasses
-        ctx.fillStyle = c.black;
-        ctx.fillRect(0, -44, 7, 3);
+        // Granny Head with Curler Net
+        this.drawGrannyHead(ctx, 0, -50, pal);
         break;
       }
 
       case 'attack': {
-        // Windup & Heavy Handbag Smash
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-12, -18, 24, 15);
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -36, 16, 18);
+        // Windup & Heavy Handbag Wallop
+        ctx.fillStyle = pal.purpleHighlight;
+        ctx.fillRect(-12, -20, 24, 16);
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-9, -38, 18, 18);
 
-        // Massive Overhead Handbag Swing
-        ctx.fillStyle = c.brown;
-        ctx.fillRect(14, -40, 16, 18);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(20, -43, 6, 4);
+        // Overhead Handbag Smash with Glint
+        ctx.fillStyle = pal.skinDeep;
+        ctx.fillRect(16, -44, 18, 18);
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(22, -47, 8, 4);
 
-        // Granny Head
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-2, -48, 11, 12);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(-5, -52, 16, 6);
+        this.drawGrannyHead(ctx, 2, -50, pal);
         break;
       }
 
-      case 'throw_purse': {
-        // Hurl Handbag Forward
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -18, 20, 15);
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -36, 16, 18);
+      case 'umbrella_block': {
+        // Open Polka-Dot Umbrella Shield (Deflects frontal attacks!)
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-9, -38, 18, 20);
 
-        // Arm reaching far out in throwing pose
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(6, -34, 16, 5);
+        // Giant Open Umbrella Dome
+        ctx.fillStyle = pal.purpleMid;
+        ctx.beginPath();
+        ctx.arc(14, -28, 22, -Math.PI / 2, Math.PI / 2, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(14, -28, 2, 2);
+        // Polka dots
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(20, -36, 3, 3);
+        ctx.fillRect(24, -26, 3, 3);
+        ctx.fillRect(20, -16, 3, 3);
 
-        // Granny Head
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-3, -48, 11, 12);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(-6, -52, 16, 6);
+        this.drawGrannyHead(ctx, -2, -50, pal);
         break;
       }
 
       case 'helicopter': {
-        // Helicopter Handbag Flight (Spinning handbag overhead like rotors)
-        const rotorAngle = t * 35;
-        const rotorSpan = Math.sin(rotorAngle) * 28;
+        // Helicopter Handbag Flight (Spinning handbag rotors)
+        const rotorAngle = t * 38;
+        const rotorSpan = Math.sin(rotorAngle) * 32;
+        const flutter = Math.sin(t * 22) * 4;
 
-        // Fluttering Floral Dress in downdraft
-        const flutter = Math.sin(t * 20) * 3;
-        ctx.fillStyle = c.lightRed;
+        // Fluttering Dress
+        ctx.fillStyle = pal.purpleHighlight;
         ctx.beginPath();
-        ctx.moveTo(-10, -18);
-        ctx.lineTo(10, -18);
-        ctx.lineTo(12 + flutter, -2);
-        ctx.lineTo(-12 - flutter, -2);
+        ctx.moveTo(-11, -20);
+        ctx.lineTo(11, -20);
+        ctx.lineTo(14 + flutter, -2);
+        ctx.lineTo(-14 - flutter, -2);
         ctx.closePath();
         ctx.fill();
 
-        // Purple Slippers Dangling
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-6, -2, 5, 5);
-        ctx.fillRect(2, -2, 5, 5);
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-9, -36, 18, 16);
 
-        // Cardigan
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -34, 16, 16);
+        // Arms stretched straight up holding purse straps
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(-7, -50, 4, 16);
+        ctx.fillRect(3, -50, 4, 16);
 
-        // Arms stretched straight UP holding handbag handle
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-6, -48, 4, 16);
-        ctx.fillRect(2, -48, 4, 16);
-
-        // Granny Head Looking Up
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-4, -42, 10, 10);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(-6, -46, 14, 5);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(0, -40, 6, 2);
-
-        // Spinning Handbag Blades (Rotor Disc Blur)
-        ctx.fillStyle = c.brown;
-        ctx.fillRect(-rotorSpan, -56, rotorSpan * 2, 4);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-3, -58, 6, 6); // Rotor center hub
-        // Motion blur ring
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 1.5;
+        // Rotor Disc & Spinning Handbag Blur
+        ctx.fillStyle = pal.skinDeep;
+        ctx.fillRect(-rotorSpan, -58, rotorSpan * 2, 4);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-4, -60, 8, 6);
+        // Rotor Blur Ring
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.ellipse(0, -56, 26, 4, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, -58, 30, 5, 0, 0, Math.PI * 2);
         ctx.stroke();
-        break;
-      }
 
-      case 'hurt': {
-        ctx.save();
-        ctx.rotate(-0.35);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -18, 20, 15);
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -36, 16, 18);
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -48, 11, 12);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(-8, -52, 16, 6);
-        ctx.restore();
+        this.drawGrannyHead(ctx, 0, -44, pal);
         break;
       }
 
       case 'knockdown': {
-        // Horizontal Defeated Granny Flat on Back
         ctx.save();
         ctx.translate(0, -6);
-        // Purple Slippers
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-30, -5, 8, 6);
-        // Floral Dress Sprawled
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-24, -7, 24, 11);
-        // Purple Cardigan
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-2, -9, 18, 13);
-        // Granny Head & Curlers
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(16, -11, 12, 12);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(16, -16, 14, 6);
-        ctx.fillStyle = c.cyan;
-        ctx.fillRect(22, -19, 4, 4);
-        ctx.fillRect(30, -14, 4, 4);
-        // Open Handbag Spilled on Floor
-        ctx.fillStyle = c.brown;
-        ctx.fillRect(6, 1, 12, 9);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(20, 3, 3, 3);
-        ctx.fillRect(25, 4, 3, 3);
+        ctx.fillStyle = pal.purpleMid;
+        ctx.fillRect(-32, -6, 9, 6);
+        ctx.fillStyle = pal.purpleHighlight;
+        ctx.fillRect(-24, -8, 26, 12);
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-2, -10, 20, 14);
+        this.drawGrannyHead(ctx, 20, -12, pal);
         ctx.restore();
         break;
       }
 
       default: {
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -18, 20, 15);
-        ctx.fillStyle = c.purple;
-        ctx.fillRect(-8, -36, 16, 18);
-        ctx.fillStyle = c.brown;
-        ctx.fillRect(8, -26, 12, 14);
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-5, -48, 11, 12);
-        ctx.fillStyle = c.lightGrey;
-        ctx.fillRect(-8, -52, 16, 6);
+        ctx.fillStyle = pal.purpleHighlight;
+        ctx.fillRect(-11, -20, 22, 16);
+        ctx.fillStyle = pal.purpleShadow;
+        ctx.fillRect(-9, -38, 18, 18);
+        this.drawGrannyHead(ctx, 0, -50, pal);
         break;
       }
     }
@@ -778,123 +955,123 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // ==========================================
-  // 4. ATTACK POODLE / PITBULL (ENEMY)
-  // ==========================================
+  drawGrannyHead(ctx, x, y, pal) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Face & Wrinkles
+    ctx.fillStyle = pal.skinMid;
+    ctx.fillRect(-6, -6, 12, 12);
+    ctx.fillStyle = pal.skinHighlight;
+    ctx.fillRect(-6, -6, 3, 12);
+
+    // Gray Perm Hair & Bright Cyan Hair Curlers
+    ctx.fillStyle = pal.furShadow;
+    ctx.fillRect(-9, -12, 18, 7);
+    ctx.fillStyle = pal.neonCyan;
+    ctx.fillRect(-8, -14, 4, 4);
+    ctx.fillRect(4, -14, 4, 4);
+    ctx.fillRect(-2, -16, 4, 4);
+
+    // Rimless Cat-Eye Glasses with Specular Glint
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-1, -2, 8, 3);
+    ctx.fillStyle = pal.metalHighlight;
+    ctx.fillRect(0, -2, 2, 2);
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 4. ATTACK POODLE & PITBULL (BARNABY - AMIGA 500 EDITION)
+  // =========================================================================
   drawDog(ctx, state, facing, animTimer) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
     switch (state) {
       case 'attack':
-      case 'leap': {
-        // Leaping Ankle Strike
+      case 'latch_bite': {
+        // High-velocity Ankle Clamp Snarl
         ctx.save();
         ctx.rotate(-0.25);
-        // Body
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-16, -16, 24, 10);
-        ctx.fillStyle = c.lightGrey;
+        ctx.fillStyle = pal.furMid;
+        ctx.fillRect(-18, -16, 26, 12);
+        ctx.fillStyle = pal.furHighlight;
         ctx.beginPath();
-        ctx.arc(-16, -12, 6, 0, Math.PI * 2);
-        ctx.arc(8, -12, 7, 0, Math.PI * 2);
+        ctx.arc(-16, -10, 7, 0, Math.PI * 2);
+        ctx.arc(8, -10, 8, 0, Math.PI * 2);
         ctx.fill();
 
-        // Front paws lunging forward
-        ctx.fillStyle = c.white;
-        ctx.fillRect(10, -10, 10, 4);
-        ctx.fillRect(10, -5, 10, 4);
-        // Back legs extended
-        ctx.fillRect(-22, -12, 8, 4);
+        // Jaws Open Wide Clamping Ankle
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(16, -18, 8, 8);
+        ctx.fillStyle = pal.furHighlight;
+        ctx.fillRect(16, -18, 3, 3); // Sharp fangs
+        ctx.fillRect(21, -13, 3, 3);
 
-        // Head Snarl wide open with fangs
-        ctx.fillStyle = c.white;
-        ctx.fillRect(12, -24, 12, 12);
-        ctx.fillStyle = c.lightRed; // Bow
-        ctx.fillRect(14, -28, 6, 4);
-        ctx.fillStyle = c.red; // Open mouth
-        ctx.fillRect(20, -18, 6, 6);
-        ctx.fillStyle = c.white; // Sharp fangs
-        ctx.fillRect(20, -18, 2, 2);
-        ctx.fillRect(24, -14, 2, 2);
+        // Pink Hair Bow
+        ctx.fillStyle = pal.neonPink;
+        ctx.fillRect(12, -26, 6, 5);
         ctx.restore();
         break;
       }
 
       case 'knockdown': {
-        // Horizontal Defeated Poodle (4 Paws in the Air)
         ctx.save();
         ctx.translate(0, -6);
-        // Fluffy Body Flat on Side
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-16, -6, 26, 9);
-        ctx.fillStyle = c.lightGrey;
-        ctx.beginPath();
-        ctx.arc(-14, -2, 6, 0, Math.PI * 2);
-        ctx.arc(6, -2, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 4 Paws Pointing Up In The Air
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-12, -16, 3, 10);
-        ctx.fillRect(-6, -16, 3, 10);
+        ctx.fillStyle = pal.furMid;
+        ctx.fillRect(-18, -6, 28, 10);
+        // 4 Paws pointing up in defeat
+        ctx.fillStyle = pal.furHighlight;
+        ctx.fillRect(-14, -16, 3, 10);
+        ctx.fillRect(-8, -16, 3, 10);
         ctx.fillRect(2, -16, 3, 10);
         ctx.fillRect(8, -16, 3, 10);
-
-        // Head on ground with lolling tongue
-        ctx.fillStyle = c.white;
-        ctx.fillRect(10, -8, 10, 10);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(20, -4, 5, 3);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(12, 0, 5, 4);
+        // Lolling Tongue
+        ctx.fillStyle = pal.redHighlight;
+        ctx.fillRect(18, -4, 6, 4);
         ctx.restore();
         break;
       }
 
       default: {
+        // Fast Running Gait
         const run = Math.sin(t * 14) * 8;
-
-        // Body
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-14, -14, 22, 10);
-
-        // Fluffy Poodle Puffs
-        ctx.fillStyle = c.lightGrey;
+        ctx.fillStyle = pal.furMid;
+        ctx.fillRect(-16, -14, 24, 11);
+        ctx.fillStyle = pal.furHighlight;
         ctx.beginPath();
-        ctx.arc(-14, -10, 6, 0, Math.PI * 2);
-        ctx.arc(8, -12, 7, 0, Math.PI * 2);
+        ctx.arc(-14, -9, 7, 0, Math.PI * 2);
+        ctx.arc(8, -10, 8, 0, Math.PI * 2);
         ctx.fill();
 
         // 4 Running Legs
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-12 + run, -8, 3, 8);
-        ctx.fillRect(-6 - run, -8, 3, 8);
-        ctx.fillRect(4 + run, -8, 3, 8);
-        ctx.fillRect(10 - run, -8, 3, 8);
+        ctx.fillStyle = pal.furShadow;
+        ctx.fillRect(-14 + run, -8, 3, 9);
+        ctx.fillRect(-7 - run, -8, 3, 9);
+        ctx.fillRect(4 + run, -8, 3, 9);
+        ctx.fillRect(11 - run, -8, 3, 9);
 
-        // Tail with puff
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-18, -18, 3, 8);
-        ctx.fillStyle = c.lightGrey;
+        // Fluffy Tail
+        ctx.fillStyle = pal.furHighlight;
         ctx.beginPath();
-        ctx.arc(-18, -20, 4, 0, Math.PI * 2);
+        ctx.arc(-20, -20, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Head with Snarl & Pink Bow
-        ctx.fillStyle = c.white;
-        ctx.fillRect(10, -22, 10, 12);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(12, -26, 6, 4);
+        // Head with Pink Bow
+        ctx.fillStyle = pal.furHighlight;
+        ctx.fillRect(10, -24, 11, 13);
+        ctx.fillStyle = pal.neonPink;
+        ctx.fillRect(12, -28, 7, 5);
 
-        // Snout with teeth
-        ctx.fillStyle = c.black;
-        ctx.fillRect(18, -16, 5, 4);
-        ctx.fillStyle = c.white;
-        ctx.fillRect(18, -12, 2, 2);
-        ctx.fillRect(21, -12, 2, 2);
+        // Snout with Fangs
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.fillRect(18, -17, 6, 5);
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(19, -13, 2, 2);
         break;
       }
     }
@@ -902,169 +1079,95 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // ==========================================
-  // 5. BASKETBALL HOOP DUDE (ENEMY - TOWERING C64 SPRITE)
-  // ==========================================
+  // =========================================================================
+  // 5. BASKETBALL HOOP DUDE (HOOPS #23 - AMIGA 500 TOWERING SPRITE)
+  // =========================================================================
   drawBasketballer(ctx, state, facing, animTimer) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
     switch (state) {
-      case 'throw_ball': {
-        // High Overhead Chest/Two-Hand Pass Throw
-        // Long skinny legs
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-7, -42, 5, 38);
-        ctx.fillRect(2, -42, 5, 38);
-        // High-top sneakers
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-9, -6, 9, 6);
-        ctx.fillRect(1, -6, 9, 6);
-        // Basketball Shorts
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -50, 20, 16);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-10, -36, 20, 2);
+      case 'throw_ball':
+      case 'dunk_slam': {
+        // Towering Monster Dunk / High Two-Hand Ball Launch
+        ctx.fillStyle = pal.bronzeMid;
+        ctx.fillRect(-8, -44, 6, 40);
+        ctx.fillRect(3, -44, 6, 40);
+        // High Top Sneakers
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-10, -6, 10, 6);
+        ctx.fillRect(2, -6, 10, 6);
+        // Red Mesh Jersey #23
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-10, -78, 20, 28);
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(-10, -52, 20, 16); // Shorts
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('23', -6, -60);
 
-        // Tall Torso in Jersey #23
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-9, -74, 18, 26);
-        ctx.fillStyle = c.white;
-        ctx.font = 'bold 9px monospace';
-        ctx.fillText('23', -6, -56);
+        // Overhead Arms Slamming Ball
+        ctx.fillStyle = pal.bronzeMid;
+        ctx.fillRect(6, -82, 24, 7);
 
-        // Two long arms extended forward launching ball
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(4, -72, 22, 5);
-        ctx.fillRect(4, -64, 22, 5);
-
-        // Tall Head with Afro & High Profile Face
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-6, -88, 12, 16);
-        // Profile Nose & Jaw
-        ctx.fillRect(6, -84, 5, 6);
-        ctx.fillRect(6, -78, 4, 4);
-        // Tall Black Hair / Afro
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-9, -96, 17, 10);
-        ctx.fillRect(-9, -88, 5, 10);
-        // White Sweatband
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-7, -90, 14, 3);
-        break;
-      }
-
-      case 'attack': {
-        // Towering Dunk Slam / High Elbow Check
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-9, -42, 5, 38);
-        ctx.fillRect(4, -42, 5, 38);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-11, -6, 9, 6);
-        ctx.fillRect(3, -6, 9, 6);
-
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -50, 20, 16);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-9, -74, 18, 26);
-
-        // Massive Overhand Dunk Smash
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(6, -78, 22, 10);
-
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-4, -88, 12, 16);
-        ctx.fillRect(8, -84, 5, 6);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-7, -96, 17, 10);
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-5, -90, 14, 3);
+        // Tall Head with High Afro Fade
+        this.drawBasketballerHead(ctx, 0, -92, pal);
         break;
       }
 
       case 'knockdown': {
-        // Horizontal Defeated Tall Basketballer Flat on Ground
         ctx.save();
         ctx.translate(0, -6);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-46, -6, 12, 8); // High sneakers
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-34, -7, 24, 6); // Long legs
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-10, -9, 18, 12); // Shorts
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(8, -11, 26, 14); // Tall Jersey #23
-        ctx.fillStyle = c.white;
-        ctx.font = '8px monospace';
-        ctx.fillText('23', 14, -1);
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(34, -13, 14, 13);
-        ctx.fillStyle = c.black;
-        ctx.fillRect(36, -20, 14, 9);
-        // Deflated Basketball
-        ctx.fillStyle = c.orange;
-        ctx.beginPath();
-        ctx.ellipse(54, -2, 8, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = c.black;
-        ctx.stroke();
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-48, -6, 13, 8);
+        ctx.fillStyle = pal.bronzeMid;
+        ctx.fillRect(-35, -7, 26, 7);
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(-9, -9, 20, 13);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(11, -11, 28, 15);
+        this.drawBasketballerHead(ctx, 42, -14, pal);
         ctx.restore();
         break;
       }
 
       default: {
-        // Walking while actively dribbling basketball (Towering gangly C64 proportion)
+        // Active Pavement Dribbling
         const walk = Math.sin(t * 8) * 8;
-        const bounce = Math.abs(Math.sin(t * 10)) * 18;
-        const armY = Math.sin(t * 10) * 6;
+        const bounce = Math.abs(Math.sin(t * 10)) * 20;
 
-        // Long Skinny Legs
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-7 + walk, -42, 5, 38);
-        ctx.fillRect(2 - walk, -42, 5, 38);
+        ctx.fillStyle = pal.bronzeMid;
+        ctx.fillRect(-8 + walk, -44, 6, 40);
+        ctx.fillRect(3 - walk, -44, 6, 40);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-10 + walk, -6, 10, 6);
+        ctx.fillRect(1 - walk, -6, 10, 6);
 
-        // High-Top Sneakers
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-9 + walk, -6, 9, 6);
-        ctx.fillRect(0 - walk, -6, 9, 6);
-
-        // High-Waisted Shorts
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-9, -50, 18, 16);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-9, -36, 18, 2);
-
-        // Tall Slender Jersey #23
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-8, -74, 16, 26);
-        ctx.fillStyle = c.white;
-        ctx.font = 'bold 9px monospace';
-        ctx.fillText('23', -6, -56);
+        // Shorts & Jersey #23
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(-10, -52, 20, 16);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-10, -78, 20, 28);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('23', -6, -60);
 
         // Long Dribbling Arm
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(6, -68 + armY, 6, 24);
+        ctx.fillStyle = pal.bronzeMid;
+        ctx.fillRect(8, -70, 7, 26);
 
-        // Bouncing Basketball on pavement
-        ctx.fillStyle = c.orange;
+        // 2.5D Bouncing Basketball
+        ctx.fillStyle = pal.neonOrange;
         ctx.beginPath();
-        ctx.arc(16, -6 - bounce, 8, 0, Math.PI * 2);
+        ctx.arc(18, -6 - bounce, 9, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = c.black;
+        ctx.strokeStyle = pal.leatherDeep;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Tall Head with Afro & High Profile Face (Matching C64 original!)
-        ctx.fillStyle = c.skinHumanDark;
-        ctx.fillRect(-5, -88, 11, 16);
-        ctx.fillRect(6, -84, 5, 6); // Nose
-        ctx.fillRect(6, -78, 4, 4); // Mouth
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-8, -96, 16, 10);
-        ctx.fillRect(-8, -88, 5, 10);
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-6, -90, 13, 3);
+        this.drawBasketballerHead(ctx, 0, -92, pal);
         break;
       }
     }
@@ -1072,132 +1175,88 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // ==========================================
-  // 6. BRUTUS THE BOUNCER (HEAVY ENEMY)
-  // ==========================================
+  drawBasketballerHead(ctx, x, y, pal) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Head
+    ctx.fillStyle = pal.bronzeMid;
+    ctx.fillRect(-6, -6, 13, 16);
+    ctx.fillStyle = pal.bronzeHighlight;
+    ctx.fillRect(-6, -6, 3, 16);
+
+    // High Afro Fade Haircut
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-9, -18, 18, 12);
+    ctx.fillRect(-9, -8, 5, 10);
+
+    // White Terrycloth Sweatband
+    ctx.fillStyle = pal.metalHighlight;
+    ctx.fillRect(-8, -10, 16, 4);
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 6. BRUTUS THE BOUNCER (HEAVYWEIGHT BRAWLER - AMIGA 500 EDITION)
+  // =========================================================================
   drawBouncer(ctx, state, facing, animTimer) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
 
     switch (state) {
-      case 'charge_tackle': {
-        // Bulldozer Charging Belly Tackle / Headbutt Rush
-        ctx.save();
-        ctx.rotate(0.2);
-        // Sturdy Legs
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-16, -20, 12, 20);
-        ctx.fillRect(2, -20, 12, 20);
+      case 'airplane_spin': {
+        // 360° Airplane Spin Grapple (Spinning Gleep-Glorp overhead!)
+        const spin = Math.sin(t * 24);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-14, -22, 13, 22);
+        ctx.fillRect(2, -22, 13, 22);
 
-        // Stout Belly in Checkered Flannel Shirt
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-16, -46, 36, 28);
-        // Checkered Grid Pattern
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-16, -42, 36, 3);
-        ctx.fillRect(-16, -34, 36, 3);
-        ctx.fillRect(-16, -26, 36, 3);
-        ctx.fillRect(-8, -46, 3, 28);
-        ctx.fillRect(4, -46, 3, 28);
-        ctx.fillRect(14, -46, 3, 28);
+        // Barrel Checkered Torso
+        this.drawBouncerTorso(ctx, 0, -50, pal);
 
-        // Lowered Head Charging Forward
-        ctx.fillStyle = c.skinHuman;
-        ctx.beginPath();
-        ctx.arc(18, -46, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = c.black;
-        ctx.fillRect(16, -48, 10, 3); // Sunglasses
-        ctx.restore();
-        break;
-      }
+        // Huge Arms holding alien overhead
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(-16, -64, 32, 8);
 
-      case 'attack':
-      case 'ground_pound': {
-        // Double Fists Raised Overhead for Ground Smash
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-14, -22, 12, 22);
-        ctx.fillRect(2, -22, 12, 22);
+        // Spinning victim silhouette overhead
+        ctx.fillStyle = pal.alienMid;
+        ctx.fillRect(-spin * 24, -72, 28, 7);
 
-        // Checkered Torso
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-18, -48, 36, 28);
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-18, -42, 36, 3);
-        ctx.fillRect(-18, -34, 36, 3);
-        ctx.fillRect(-10, -48, 3, 28);
-        ctx.fillRect(2, -48, 3, 28);
-
-        // Massive Double Fists Slamming Down
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(10, -56, 14, 18);
-        ctx.fillRect(12, -40, 14, 14);
-
-        ctx.fillStyle = c.skinHuman;
-        ctx.beginPath();
-        ctx.arc(0, -56, 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-5, -57, 10, 3);
+        this.drawBouncerHead(ctx, 0, -58, pal);
         break;
       }
 
       case 'knockdown': {
-        // Massive Horizontal Defeated Brawler
         ctx.save();
         ctx.translate(0, -6);
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-38, -6, 12, 10);
-        ctx.fillRect(-28, -8, 22, 14);
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-8, -12, 34, 18);
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-8, -7, 34, 3);
-        ctx.fillRect(4, -12, 3, 18);
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(8, 4, 18, 8);
-        ctx.fillStyle = c.skinHuman;
-        ctx.beginPath();
-        ctx.arc(28, -6, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = c.black;
-        ctx.fillRect(24, -8, 10, 3);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-40, -8, 24, 12);
+        this.drawBouncerTorso(ctx, -10, -12, pal);
+        this.drawBouncerHead(ctx, 30, -8, pal);
         ctx.restore();
         break;
       }
 
       default: {
-        // Walking Swagger (Stout belly in checkered shirt)
+        // Swagger walk in flannel shirt
         const w = Math.sin(t * 6) * 4;
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-12 + w, -22, 10, 22);
-        ctx.fillRect(2 - w, -22, 10, 22);
+        ctx.fillStyle = pal.denimMid;
+        ctx.fillRect(-14 + w, -22, 12, 22);
+        ctx.fillRect(2 - w, -22, 12, 22);
 
-        // Checkered Flannel Shirt
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-16, -48, 32, 28);
-        ctx.fillStyle = c.blue;
-        ctx.fillRect(-16, -42, 32, 3);
-        ctx.fillRect(-16, -34, 32, 3);
-        ctx.fillRect(-8, -48, 3, 28);
-        ctx.fillRect(2, -48, 3, 28);
+        this.drawBouncerTorso(ctx, 0, -50, pal);
 
-        // Muscular Arms
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-22, -46, 8, 18);
-        ctx.fillRect(14, -46, 8, 18);
+        // Muscular Arms with Brass Knuckles
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(-22, -48, 9, 20);
+        ctx.fillRect(15, -48, 9, 20);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(15, -30, 9, 4); // Brass Knuckles
 
-        // Bald Head with Sunglasses
-        ctx.fillStyle = c.skinHuman;
-        ctx.beginPath();
-        ctx.arc(0, -56, 9, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = c.black;
-        ctx.fillRect(-5, -57, 10, 3);
-        ctx.fillRect(-3, -50, 6, 4);
+        this.drawBouncerHead(ctx, 0, -58, pal);
         break;
       }
     }
@@ -1205,14 +1264,214 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // ==========================================
-  // 7. DUKE DAVIS - FINAL BOSS (1987 BRAWLER)
-  // ==========================================
+  drawBouncerTorso(ctx, x, y, pal) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Blue/Black Checkered Flannel Shirt
+    ctx.fillStyle = pal.denimHighlight;
+    ctx.fillRect(-18, 0, 36, 30);
+    ctx.fillStyle = pal.leatherDeep;
+    // Checkered Grid Pattern
+    ctx.fillRect(-18, 6, 36, 4);
+    ctx.fillRect(-18, 16, 36, 4);
+    ctx.fillRect(-18, 24, 36, 4);
+    ctx.fillRect(-8, 0, 4, 30);
+    ctx.fillRect(4, 0, 4, 30);
+
+    ctx.restore();
+  }
+
+  drawBouncerHead(ctx, x, y, pal) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Bald Muscular Head
+    ctx.fillStyle = pal.skinMid;
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = pal.skinHighlight;
+    ctx.beginPath();
+    ctx.arc(-3, -3, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 5 O'clock Stubble Shadow
+    ctx.fillStyle = pal.leatherHighlight;
+    ctx.fillRect(-6, 2, 12, 6);
+
+    // Dark Sunglasses
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-6, -3, 12, 4);
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 7. AXEL THE ROLLER-SKATER (NEW ENEMY - AMIGA 500 EDITION)
+  // =========================================================================
+  drawSkater(ctx, state, facing, animTimer) {
+    ctx.save();
+    ctx.scale(facing, 1);
+    const pal = this.amiga;
+    const t = animTimer || 0;
+
+    // Slalom roll animation
+    const roll = Math.sin(t * 12) * 5;
+    const wheelRot = t * 25;
+
+    // Shorts & Knee Pads
+    ctx.fillStyle = pal.neonPink;
+    ctx.fillRect(-8, -24, 16, 14);
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-7, -14, 5, 5); // Knee pads
+    ctx.fillRect(2, -14, 5, 5);
+
+    // Retro 80s Quad Roller Skates with Spinning Wheels
+    ctx.fillStyle = pal.neonCyan;
+    ctx.fillRect(-10, -6, 9, 5);
+    ctx.fillRect(2, -6, 9, 5);
+    // 4 Glowing Wheels
+    ctx.fillStyle = pal.neonGreen;
+    ctx.beginPath();
+    ctx.arc(-8, -1, 3, 0, Math.PI * 2);
+    ctx.arc(-2, -1, 3, 0, Math.PI * 2);
+    ctx.arc(4, -1, 3, 0, Math.PI * 2);
+    ctx.arc(10, -1, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sleeveless Muscle Tank & Boombox on shoulder
+    ctx.fillStyle = pal.neonGreen;
+    ctx.fillRect(-8, -44 + roll * 0.5, 16, 20);
+
+    // Silver 80s Boombox
+    ctx.fillStyle = pal.metalMid;
+    ctx.fillRect(-16, -48 + roll * 0.5, 12, 16);
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.beginPath();
+    ctx.arc(-10, -40 + roll * 0.5, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Skater Head with Backwards Neon Cap
+    ctx.fillStyle = pal.skinMid;
+    ctx.fillRect(-5, -56 + roll * 0.5, 11, 12);
+    ctx.fillStyle = pal.neonPink; // Backwards cap
+    ctx.fillRect(-7, -62 + roll * 0.5, 15, 6);
+    ctx.fillRect(-12, -58 + roll * 0.5, 6, 3); // Cap bill behind
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 8. BRUNO THE CIRCUS STRONGMAN (NEW ENEMY - AMIGA 500 EDITION)
+  // =========================================================================
+  drawStrongman(ctx, state, facing, animTimer) {
+    ctx.save();
+    ctx.scale(facing, 1);
+    const pal = this.amiga;
+    const t = animTimer || 0;
+
+    switch (state) {
+      case 'barbell_spin': {
+        // Whirlwind 360° Barbell Spin (Invulnerable whirlwind)
+        const spin = Math.sin(t * 30);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-12, -22, 11, 22);
+        ctx.fillRect(2, -22, 11, 22);
+
+        // Striped Circus Singlet
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-14, -48, 28, 26);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-14, -44, 28, 4);
+        ctx.fillRect(-14, -34, 28, 4);
+
+        // 100KG Iron Barbell Spinning 360
+        ctx.fillStyle = pal.metalMid;
+        ctx.fillRect(-spin * 36, -42, spin * 72, 6);
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.beginPath();
+        ctx.arc(-spin * 36, -39, 11, 0, Math.PI * 2);
+        ctx.arc(spin * 36, -39, 11, 0, Math.PI * 2);
+        ctx.fill();
+
+        this.drawStrongmanHead(ctx, 0, -58, pal);
+        break;
+      }
+
+      default: {
+        // Heavy Stride carrying Barbell
+        const w = Math.sin(t * 6) * 4;
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-12 + w, -22, 11, 22);
+        ctx.fillRect(2 - w, -22, 11, 22);
+
+        // Red/White Striped Circus Singlet
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-14, -48, 28, 26);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-14, -44, 28, 4);
+        ctx.fillRect(-14, -34, 28, 4);
+
+        // Barbell in Hands
+        ctx.fillStyle = pal.metalMid;
+        ctx.fillRect(4, -36, 26, 5);
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.beginPath();
+        ctx.arc(30, -34, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        this.drawStrongmanHead(ctx, 0, -58, pal);
+        break;
+      }
+    }
+
+    ctx.restore();
+  }
+
+  drawStrongmanHead(ctx, x, y, pal) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Bald Head
+    ctx.fillStyle = pal.skinMid;
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Giant Twirled Handlebar Mustache
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.beginPath();
+    ctx.moveTo(-10, 4);
+    ctx.quadraticCurveTo(-4, 0, 0, 3);
+    ctx.quadraticCurveTo(4, 0, 10, 4);
+    ctx.quadraticCurveTo(6, 9, 0, 6);
+    ctx.quadraticCurveTo(-6, 9, -10, 4);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // 9. DUKE DAVIS - FINAL BOSS (1987 BRAWLER - AMIGA 500 ULTIMATE EDITION)
+  // =========================================================================
   drawDukeBoss(ctx, state, facing, animTimer, options = {}) {
     ctx.save();
     ctx.scale(facing, 1);
-    const c = this.c64;
+    const pal = this.amiga;
     const t = animTimer || 0;
+    const isEnraged = options.phase >= 2;
+
+    // Enraged Fiery Aura in Phase 2/3
+    if (isEnraged) {
+      const aura = Math.sin(t * 18) * 4;
+      ctx.save();
+      ctx.strokeStyle = pal.neonGreen;
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.65;
+      ctx.strokeRect(-22 - aura, -72 - aura, 44 + aura * 2, 74 + aura * 2);
+      ctx.restore();
+    }
 
     switch (state) {
       case 'idle':
@@ -1220,91 +1479,95 @@ class SpriteRenderer {
         const w = state === 'walk' ? Math.sin(t * 8) * 6 : 0;
         const bob = Math.abs(Math.sin(t * 8)) * 2;
 
-        // Blue Jeans & White High Tops
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-10 + w, -22, 9, 22);
-        ctx.fillRect(2 - w, -22, 9, 22);
-        ctx.fillStyle = c.white;
-        ctx.fillRect(-12 + w, -4, 11, 4);
-        ctx.fillRect(0 - w, -4, 11, 4);
+        // Stonewashed Denim Jeans & High Tops
+        ctx.fillStyle = pal.denimHighlight;
+        ctx.fillRect(-12 + w, -24, 10, 24);
+        ctx.fillRect(3 - w, -24, 10, 24);
+        ctx.fillStyle = pal.metalHighlight;
+        ctx.fillRect(-14 + w, -5, 12, 5);
+        ctx.fillRect(1 - w, -5, 12, 5);
 
-        // Iconic Yellow Muscle Tank Top
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-14, -48 + bob, 28, 26);
-        ctx.fillStyle = c.orange; // muscle shading
-        ctx.fillRect(-4, -42 + bob, 8, 16);
+        // Golden Yellow Muscle Tank Top
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-16, -52 + bob, 32, 28);
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(-16, -52 + bob, 4, 28);
+        // Pec & Ab Definition
+        ctx.fillStyle = pal.goldShadow;
+        ctx.fillRect(-6, -44 + bob, 12, 2);
+        ctx.fillRect(-6, -36 + bob, 12, 2);
 
-        // Huge Muscular Arms
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(-20, -46 + bob, 8, 20);
-        ctx.fillRect(12, -46 + bob, 8, 20);
-        // Wristbands
-        ctx.fillStyle = c.red;
-        ctx.fillRect(-20, -32 + bob, 8, 4);
-        ctx.fillRect(12, -32 + bob, 8, 4);
+        // Huge Muscular Biceps with Red Boxing Wraps
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(-24, -50 + bob, 9, 22);
+        ctx.fillRect(15, -50 + bob, 9, 22);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(-24, -36 + bob, 9, 5);
+        ctx.fillRect(15, -36 + bob, 9, 5);
 
-        // Duke's Head, Red Headband, Mullet & Shades
-        this.drawDukeHead(ctx, 0, -58 + bob);
+        // Championship Gold Belt
+        ctx.fillStyle = pal.goldHighlight;
+        ctx.fillRect(-16, -26 + bob, 32, 5);
+        ctx.fillStyle = pal.leatherDeep;
+        ctx.fillRect(-4, -27 + bob, 8, 7);
+
+        this.drawDukeHead(ctx, 0, -62 + bob, pal, isEnraged);
         break;
       }
 
       case 'punch': {
-        // Heavy Haymaker Punch
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-12, -22, 9, 22);
-        ctx.fillRect(4, -22, 9, 22);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-12, -48, 26, 26);
+        // Heavy Haymaker Knockout Punch
+        ctx.fillStyle = pal.denimHighlight;
+        ctx.fillRect(-14, -24, 10, 24);
+        ctx.fillRect(5, -24, 10, 24);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-14, -52, 28, 28);
 
-        // Extended Haymaker Arm
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(8, -44, 28, 10);
-        ctx.fillStyle = c.red;
-        ctx.fillRect(26, -44, 6, 10); // Red boxing wrap
+        // Extended Haymaker Punch with Motion Blur
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(8, -48, 30, 11);
+        ctx.fillStyle = pal.redMid;
+        ctx.fillRect(28, -48, 10, 11); // Red Boxing Glove
 
-        this.drawDukeHead(ctx, 2, -58);
+        this.drawDukeHead(ctx, 2, -62, pal, isEnraged);
         break;
       }
 
       case 'ram': {
-        // Duke's Bulldozer / Shoulder Ram
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-16, -16, 14, 16);
-        ctx.fillRect(0, -16, 14, 16);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-14, -36, 28, 20);
+        // Bulldozer Shoulder Charge
+        ctx.fillStyle = pal.denimHighlight;
+        ctx.fillRect(-18, -18, 16, 18);
+        ctx.fillRect(2, -18, 16, 18);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-16, -40, 32, 22);
 
         // Ramming Shoulder
-        ctx.fillStyle = c.skinHuman;
-        ctx.fillRect(12, -38, 14, 14);
+        ctx.fillStyle = pal.skinMid;
+        ctx.fillRect(14, -42, 16, 16);
 
-        this.drawDukeHead(ctx, 10, -46, 0.4);
-        break;
-      }
-
-      case 'hurt': {
-        ctx.save();
-        ctx.rotate(-0.3);
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-10, -22, 9, 22);
-        ctx.fillRect(2, -22, 9, 22);
-        ctx.fillStyle = c.lightRed;
-        ctx.fillRect(-14, -48, 28, 26);
-        this.drawDukeHead(ctx, -2, -58);
-        ctx.restore();
+        this.drawDukeHead(ctx, 12, -50, pal, isEnraged, 0.4);
         break;
       }
 
       case 'knockdown': {
-        // Defeated flat on ground
         ctx.save();
-        ctx.translate(0, -10);
-        ctx.fillStyle = c.lightBlue;
-        ctx.fillRect(-30, -6, 24, 10);
-        ctx.fillStyle = c.yellow;
-        ctx.fillRect(-10, -10, 30, 14);
-        this.drawDukeHead(ctx, 24, -8, Math.PI / 2);
+        ctx.translate(0, -8);
+        ctx.fillStyle = pal.denimHighlight;
+        ctx.fillRect(-36, -8, 26, 12);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-10, -12, 34, 16);
+        this.drawDukeHead(ctx, 28, -10, pal, false, Math.PI / 2);
         ctx.restore();
+        break;
+      }
+
+      default: {
+        ctx.fillStyle = pal.denimHighlight;
+        ctx.fillRect(-12, -24, 10, 24);
+        ctx.fillRect(3, -24, 10, 24);
+        ctx.fillStyle = pal.goldMid;
+        ctx.fillRect(-16, -52, 32, 28);
+        this.drawDukeHead(ctx, 0, -62, pal, isEnraged);
         break;
       }
     }
@@ -1312,43 +1575,46 @@ class SpriteRenderer {
     ctx.restore();
   }
 
-  // Draw Duke Davis's head with 80s Mullet and Cool Shades
-  drawDukeHead(ctx, x, y, angle = 0) {
+  // Draw Duke Davis's 80s Mullet & Mirrored Shades
+  drawDukeHead(ctx, x, y, pal, isEnraged = false, angle = 0) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
 
-    const c = this.c64;
-
-    // Mullet Hair flowing behind
-    ctx.fillStyle = '#5c3a21'; // Brown Mullet
+    // Luxurious 1987 Mullet Flowing Behind
+    ctx.fillStyle = pal.goldShadow;
     ctx.beginPath();
-    ctx.moveTo(-8, -10);
-    ctx.lineTo(8, -10);
-    ctx.lineTo(12, 14);
-    ctx.lineTo(-14, 14);
+    ctx.moveTo(-10, -12);
+    ctx.lineTo(10, -12);
+    ctx.lineTo(16, 16);
+    ctx.lineTo(-16, 16);
     ctx.closePath();
     ctx.fill();
 
     // Face
-    ctx.fillStyle = c.skinHuman;
-    ctx.fillRect(-6, -6, 14, 14);
+    ctx.fillStyle = pal.skinMid;
+    ctx.fillRect(-7, -8, 16, 16);
+    ctx.fillStyle = pal.skinHighlight;
+    ctx.fillRect(-7, -8, 3, 16);
 
     // Red Headband / Bandana
-    ctx.fillStyle = c.red;
-    ctx.fillRect(-8, -8, 18, 5);
-    ctx.fillRect(-12, -7, 5, 4); // Bandana knot
+    ctx.fillStyle = pal.redMid;
+    ctx.fillRect(-9, -10, 20, 6);
+    ctx.fillRect(-14, -9, 6, 5); // Knot
 
-    // Dark Sunglasses
-    ctx.fillStyle = c.black;
-    ctx.fillRect(-4, -2, 6, 4);
-    ctx.fillRect(3, -2, 6, 4);
-    ctx.fillStyle = c.white;
-    ctx.fillRect(-3, -2, 2, 2);
+    // Mirrored Aviator Sunglasses with Sunset Sky Reflection
+    ctx.fillStyle = pal.leatherDeep;
+    ctx.fillRect(-5, -4, 7, 5);
+    ctx.fillRect(3, -4, 7, 5);
+    ctx.fillStyle = pal.neonCyan; // Mirror horizon reflection
+    ctx.fillRect(-4, -4, 3, 2);
+    ctx.fillRect(4, -4, 3, 2);
 
-    // Rugged Stubble & Grin
-    ctx.fillStyle = c.skinHumanDark;
-    ctx.fillRect(-2, 4, 8, 3);
+    // Rugged Stubble & Winning Grin
+    ctx.fillStyle = pal.skinShadow;
+    ctx.fillRect(-3, 4, 9, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-2, 4, 7, 1.5); // White teeth
 
     ctx.restore();
   }
