@@ -34,6 +34,18 @@ class CutsceneManager {
 
     let completed = false;
     let crawlTimer = null;
+    // The auto-finish timer must pause WITH the crawl. setTimeout runs on wall
+    // clock, so without this a long pause would let the timer fire and cut the
+    // crawl off mid-scroll.
+    let msRemaining = 46000;
+    let timerStartedAt = 0;
+    const startTimer = () => { timerStartedAt = performance.now(); crawlTimer = setTimeout(finish, msRemaining); };
+    const holdTimer = () => {
+      if (!crawlTimer) return;
+      clearTimeout(crawlTimer);
+      crawlTimer = null;
+      msRemaining = Math.max(0, msRemaining - (performance.now() - timerStartedAt));
+    };
 
     const finish = () => {
       if (completed) return;
@@ -51,6 +63,7 @@ class CutsceneManager {
       this.isCrawlPaused = !this.isCrawlPaused;
       wrapper.classList.toggle('paused', this.isCrawlPaused);
       if (pauseIndicator) pauseIndicator.classList.toggle('hidden', !this.isCrawlPaused);
+      if (this.isCrawlPaused) holdTimer(); else startTimer();
       if (btnPause) {
         btnPause.innerHTML = this.isCrawlPaused ? '<strong>[P]</strong> RESUME' : '<strong>[P]</strong> PAUSE';
       }
@@ -72,8 +85,95 @@ class CutsceneManager {
 
     window.addEventListener('keydown', handleKey);
 
-    // Auto complete after crawl finishes (~45s)
-    crawlTimer = setTimeout(finish, 46000);
+    // Auto complete after crawl finishes (~45s). Pausable — see startTimer/holdTimer.
+    startTimer();
+  }
+
+  // ---------------------------------------------------------------------
+  // END CREDITS — same crawl, same [P] pause and [SPACE] skip as the intro.
+  // The one difference that matters: SKIP here means "take me to the main
+  // menu", not "start the game". Any unsaved high score has already been
+  // handled on the victory screen before this ever runs.
+  // ---------------------------------------------------------------------
+  startEndCredits(onComplete) {
+    const crawlScreen = document.getElementById('credits-crawl-screen');
+    const wrapper = document.getElementById('credits-crawl-wrapper');
+    const pauseIndicator = document.getElementById('credits-pause-indicator');
+    const btnPause = document.getElementById('btn-credits-pause');
+    const btnSkip = document.getElementById('btn-credits-skip');
+    if (!crawlScreen || !wrapper) return;
+
+    this.isCrawlPaused = false;
+    this.inCredits = true;
+    wrapper.classList.remove('paused');
+    if (pauseIndicator) pauseIndicator.classList.add('hidden');
+    if (btnPause) btnPause.innerHTML = '<strong>[P]</strong> PAUSE';
+
+    // Restart the CSS animation cleanly so a second viewing plays from the top
+    wrapper.style.animation = 'none';
+    wrapper.offsetHeight; // trigger reflow
+    wrapper.style.animation = '';
+
+    crawlScreen.classList.remove('hidden');
+    if (window.sidSynth) window.sidSynth.playTrack('credits');
+
+    let completed = false;
+    let crawlTimer = null;
+    // Same pausable timer as the intro: [P] must stop the clock, not just the
+    // animation, or a long pause silently eats the end of the credits.
+    let msRemaining = 64000;
+    let timerStartedAt = 0;
+    const startTimer = () => { timerStartedAt = performance.now(); crawlTimer = setTimeout(finish, msRemaining); };
+    const holdTimer = () => {
+      if (!crawlTimer) return;
+      clearTimeout(crawlTimer);
+      crawlTimer = null;
+      msRemaining = Math.max(0, msRemaining - (performance.now() - timerStartedAt));
+    };
+
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      this.inCredits = false;
+      if (crawlTimer) clearTimeout(crawlTimer);
+      crawlScreen.classList.add('hidden');
+      window.removeEventListener('keydown', handleKey);
+      if (btnPause) btnPause.onclick = null;
+      if (btnSkip) btnSkip.onclick = null;
+      if (pauseIndicator) pauseIndicator.onclick = null;
+      if (onComplete) onComplete();
+    };
+
+    const togglePause = () => {
+      this.isCrawlPaused = !this.isCrawlPaused;
+      wrapper.classList.toggle('paused', this.isCrawlPaused);
+      if (pauseIndicator) pauseIndicator.classList.toggle('hidden', !this.isCrawlPaused);
+      if (this.isCrawlPaused) holdTimer(); else startTimer();
+      if (btnPause) {
+        btnPause.innerHTML = this.isCrawlPaused ? '<strong>[P]</strong> RESUME' : '<strong>[P]</strong> PAUSE';
+      }
+    };
+
+    const handleKey = (e) => {
+      if (e.code === 'KeyP') {
+        e.preventDefault();
+        togglePause();
+      } else if (['Space', 'Enter', 'Escape'].includes(e.code)) {
+        e.preventDefault();
+        finish();
+      }
+    };
+
+    if (btnPause) btnPause.onclick = (e) => { e.stopPropagation(); togglePause(); };
+    if (btnSkip) btnSkip.onclick = (e) => { e.stopPropagation(); finish(); };
+    if (pauseIndicator) pauseIndicator.onclick = (e) => { e.stopPropagation(); togglePause(); };
+
+    window.addEventListener('keydown', handleKey);
+
+    // Generous by design: the 62s animation plus a beat. Erring long is safe
+    // because [SPACE] skips straight to the menu; erring short would cut the
+    // cast list off. Pausable — see startTimer/holdTimer.
+    startTimer();
   }
 
   // 2. Dojo / Practice Gym Mode (Inspired by Bop'n Rumble's gym!)

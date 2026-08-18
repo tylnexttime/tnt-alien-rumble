@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TNT ALIEN RUMBLE v2.0 - The Vengeance of Gleep-Glorp (Amiga 500 Edition)</title>
-  <meta name="description" content="A 100% operational browser-based beat 'em up inspired by C64 & Amiga 500 Bop'n Rumble. Play as Gleep-Glorp the alien seeking revenge on Duke Davis!">
+  <title>TNT ALIEN RUMBLE v3.0 - The Vengeance of Gleep-Glorp (C64 Edition)</title>
+  <meta name="description" content="A 100% operational browser-based beat 'em up inspired by the 1987 Commodore 64 classic Bop&#39;n Rumble. Play as Gleep-Glorp the alien seeking revenge on Duke Davis!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
@@ -89,6 +89,64 @@
     </div>
 
     <!-- STAR WARS ESCAPING TEXT CRAWL INTRO -->
+    <!-- ================= END CREDITS (reuses the intro-crawl styling) ================= -->
+    <div id="credits-crawl-screen" class="intro-crawl-container hidden">
+      <div class="stars-bg"></div>
+      <div class="intro-crawl-wrapper credits-crawl" id="credits-crawl-wrapper">
+        <div class="intro-main-title">
+          <p class="intro-sub">Sector 7 Studios presents</p>
+          <h1 class="intro-head">TNT ALIEN RUMBLE</h1>
+          <p class="intro-episode">THE CAST &bull; IN ORDER OF APPEARANCE</p>
+        </div>
+        <div class="intro-crawl-content">
+          <p><strong>GLEEP-GLORP</strong><br>as Himself<br><em>Thirty-nine years of grudge, one walking stick, and a mothership parked in Sector 7. Waited longer for this than most people stay married.</em></p>
+
+          <p><strong>THE TRENCH-COAT DWARF</strong><br>as The Bloke With The Hat<br><em>Not a fighter. Turned up anyway, every single stage, handing out hearts and&mdash;later&mdash;live ordnance. Nobody has ever seen what else is in that coat, and nobody has asked.</em></p>
+
+          <p><strong>SPIKE</strong><br>as Mohawk Street Punk<br><em>Reckons the mohawk is structural. It is half a can of hairspray and pure spite. Banned from every servo on the strip.</em></p>
+
+          <p><strong>AXEL</strong><br>as The Roller-Skater<br><em>Has not taken the sunnies off since 1987, indoors or otherwise. One tape in the boombox and it has been chewed since Tuesday.</em></p>
+
+          <p><strong>BARNABY</strong><br>as The Attack Poodle<br><em>Groomed within an inch of his life and absolutely filthy about it. Goes off like a frog in a sock.</em></p>
+
+          <p><strong>AGNES</strong><br>as The Handbag Granny<br><em>There is a brick in that handbag. Everyone knows. Nobody is game to say it. She would argue with a signpost and win. Left the set by helicopter.</em></p>
+
+          <p><strong>BRUTUS</strong><br>as The Bouncer<br><em>Built like a brick dunny. Knocked back your ID in 1987 and would do it again tomorrow. Did all his own airplane spins.</em></p>
+
+          <p><strong>THE MOTORCYCLIST</strong><br>as Himself<br><em>A stage boss in the 1987 original, back on the payroll. The bike is louder than it is fast, which is saying something. Has never once indicated.</em></p>
+
+          <p><strong>HOOPS #23</strong><br>as The Basketballer<br><em>Four metres of him, and he will tell you&mdash;unprompted&mdash;that he was robbed at the draft.</em></p>
+
+          <p><strong>BRUNO</strong><br>as The Circus Strongman<br><em>It is genuinely 100 kilos. He will let you know. Repeatedly. Unprompted. At length. Now on the mend.</em></p>
+
+          <p><strong>DUKE DAVIS</strong><br>as The Final Boss<br><em>The mullet is load-bearing. Has retired from street brawling and relocated to Gosford, which he insists was the plan all along.</em></p>
+
+          <p class="credits-rule">&mdash;&nbsp;&mdash;&nbsp;&mdash;</p>
+
+          <p><strong>WITH ENORMOUS RESPECT TO THE ORIGINAL</strong></p>
+          <p><em>BOP&rsquo;N RUMBLE</em> (1987)<br>known as <em>STREET HASSLE</em> in Europe and <em>BAD STREET BRAWLER</em> on the NES<br>for the Commodore 64.</p>
+          <p>Developed by <strong>BEAM SOFTWARE</strong>, Melbourne.<br>Published by <strong>MELBOURNE HOUSE</strong> and <strong>MINDSCAPE</strong>.</p>
+          <p>Code by <strong>ANDREW DAVIE</strong> and <strong>DAVID PENTECOST</strong>.<br>Music by <strong>NEIL BRENNAN</strong>.</p>
+          <p>They gave Duke Davis the headbutt, the ground-ram, the ear-squeeze and the aerial spin. We only borrowed them, gave them to an alien, and pointed them back at him. Thirty-nine years is a long time to hold a grudge, but fair is fair.</p>
+
+          <p class="credits-rule">&mdash;&nbsp;&mdash;&nbsp;&mdash;</p>
+
+          <p><strong>BUILT BY</strong><br>CHRIS TYL<br>CLAUDE TYL</p>
+          <p><em>One of us can be listed on the paperwork. Both of us wrote the game. The credits are the more accurate document, so this is where it goes.</em></p>
+          <p>Made in Melbourne by <strong>SECTOR 7 STUDIOS</strong>.<br>A <strong>DIAMOND11</strong> production.</p>
+          <p>No handbags were harmed in the making of this game.<br>The poodle is fine. The poodle is always fine.</p>
+          <p class="credits-rule">THANKS FOR PLAYING</p>
+        </div>
+      </div>
+      <div id="credits-pause-indicator" class="crawl-pause-indicator hidden">
+        <span>&#10074;&#10074; PAUSED &bull; PRESS [P] OR CLICK TO RESUME</span>
+      </div>
+      <div class="intro-controls-prompt">
+        <button id="btn-credits-pause" class="crawl-btn"><strong>[P]</strong> PAUSE</button>
+        <button id="btn-credits-skip" class="crawl-btn"><strong>[SPACE]</strong> SKIP TO MENU</button>
+      </div>
+    </div>
+
     <div id="intro-crawl-screen" class="intro-crawl-container hidden">
       <div class="stars-bg"></div>
       <div class="intro-crawl-wrapper" id="intro-crawl-wrapper">
@@ -116,7 +174,7 @@
 
     <!-- MAIN MENU SCREEN -->
     <div id="main-menu-screen" class="screen-overlay">
-      <div class="c64-title-badge">AMIGA 500 &amp; C64 EDITION - v2.0</div>
+      <div class="c64-title-badge">COMMODORE 64 EDITION - v3.0</div>
       <h1 class="game-logo-text">TNT ALIEN<br><span class="logo-highlight">RUMBLE</span></h1>
       <div class="logo-alien-deco">
         <div class="alien-idle-preview"></div>
@@ -136,7 +194,7 @@
 
       <div class="menu-footer">
         <div class="high-score-display">TOP SCORE: <span id="menu-high-score">050000</span></div>
-        <div class="credits-tag">&copy; 1987-2026 MELBOURNE &bull; SECTOR 7 STUDIOS</div>
+        <div class="credits-tag">&copy; 1987-2026 MELBOURNE &bull; SECTOR 7 STUDIOS &bull; A DIAMOND11 PRODUCTION</div>
       </div>
     </div>
 
@@ -278,48 +336,58 @@
         </div>
 
         <div class="modal-header" style="border-top: 2px solid #58626e; margin-top: 15px;">
-          <h2>AMIGA 500 ENEMY FIELD ROSTER &amp; COUNTERS</h2>
+          <h2>ENEMY FIELD ROSTER &amp; COUNTERS</h2>
         </div>
         <div class="modal-content moves-grid">
-          <div class="move-card">
-            <div class="move-title">MOHAWK PUNK (SPIKE)</div>
-            <div class="move-keys">BEHAVIOR: Knife Stabs &amp; Dropkicks</div>
-            <div class="move-desc">Fast street thug. Intercept his flying dropkick with <strong>[K] Stretchy Headbutt</strong>.</div>
+          <div class="move-card" style="border-color:#00f7ff;">
+            <div class="move-title">THE TRENCH-COAT DWARF</div>
+            <div class="move-keys">STAGE 1 ONWARD &middot; NOT A FIGHTER &mdash; he lobs you something</div>
+            <div class="move-desc">Straight out of the 1987 original. Cyan hatband, khaki coat, half your height &mdash; <strong>do not hit him</strong>. Stages 1&ndash;2 he tosses a <strong>heart (+25 HP)</strong>. From stage 3 he increasingly tosses a <strong>live bomb</strong>: stand over it and press <strong>[L] Low Shin Grab</strong> to defuse for <strong>750 pts + a heart</strong>. Let it cook and it flattens everyone in the blast, you included.<br><em>Fun fact: nobody has ever seen what else is in that coat, and nobody has asked.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">HANDBAG GRANNY (AGNES)</div>
-            <div class="move-keys">BEHAVIOR: Purse Boomerang, Umbrella Shield, Helicopter</div>
-            <div class="move-desc">Do not strike during her Umbrella Shield (0 DMG!). Duck under purse throws with <strong>[L] Low Trip</strong>.</div>
+            <div class="move-title">1. MOHAWK PUNK (SPIKE)</div>
+            <div class="move-keys">STAGE 1 &middot; Knife Stabs &amp; Flying Dropkicks</div>
+            <div class="move-desc">Fast street thug, 35 HP, all mouth and elbows. Intercept his flying dropkick with <strong>[K] Stretchy Headbutt</strong>, or duck it and punish on the landing.<br><em>Fun fact: reckons the mohawk is structural. It is half a can of hairspray and pure spite. Banned from every servo on the strip.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">ATTACK POODLE (BARNABY)</div>
-            <div class="move-keys">BEHAVIOR: Sonic Bark Stun &amp; Ankle Latch Bite</div>
-            <div class="move-desc">Rapid low-profile rusher. Jump over with <strong>[W]</strong> or trip flat with <strong>[L] Shin Grab</strong>.</div>
+            <div class="move-title">2. AXEL THE ROLLER-SKATER</div>
+            <div class="move-keys">STAGE 1 &middot; High-Speed Slalom &amp; 360&deg; Spin Kick</div>
+            <div class="move-desc">Agile drive-by skater, 38 HP, quick as. Time your <strong>[K] Stretchy Headbutt</strong> to knock him clean off the skates, or take his legs with <strong>[L] Low Shin Grab</strong>.<br><em>Fun fact: has not taken the sunnies off since 1987, indoors or otherwise. One tape in the boombox and it has been chewed since Tuesday.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">HOOPSTER (HOOPS #23)</div>
-            <div class="move-keys">BEHAVIOR: Active Dribble, Bouncing Basketball, Monster Dunk</div>
-            <div class="move-desc">Towering 84px athletic giant. Jump over bouncing balls and bowl him over with <strong>[U] Bull Ram</strong>.</div>
+            <div class="move-title">3. ATTACK POODLE (BARNABY)</div>
+            <div class="move-keys">STAGE 1 &middot; Sonic Bark Stun &amp; Ankle Latch Bite</div>
+            <div class="move-desc">Rapid low-profile rusher, 22 HP but the fastest thing on four legs here. Jump him with <strong>[W]</strong> or flatten him with <strong>[L] Shin Grab</strong>. Do not let him latch on.<br><em>Fun fact: groomed within an inch of his life and absolutely filthy about it. Goes off like a frog in a sock.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">BRUTUS THE BOUNCER</div>
-            <div class="move-keys">BEHAVIOR: Bulldozer Charge &amp; 360° Airplane Spin</div>
-            <div class="move-desc">Armored bruiser. Jump over his charge tackle with <strong>[W]</strong> and flatten with <strong>[W+J] Belly Flop</strong>.</div>
+            <div class="move-title">4. HANDBAG GRANNY (AGNES)</div>
+            <div class="move-keys">STAGE 1 &middot; Purse Boomerang, Umbrella Shield, Helicopter Escape</div>
+            <div class="move-desc">45 HP. <strong>Do not strike during her Umbrella Shield</strong> &mdash; it deflects everything frontal for 0 damage. Duck under purse throws with <strong>[L] Low Trip</strong>. If she starts the rotors, she is off and you have lost the points.<br><em>Fun fact: there is a brick in that handbag. Everyone knows. Nobody is game to say it. She would argue with a signpost and win.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">AXEL THE ROLLER-SKATER</div>
-            <div class="move-keys">BEHAVIOR: High-Speed Slalom &amp; 360° Spin Kick</div>
-            <div class="move-desc">Agile drive-by skater. Time your <strong>[K] Stretchy Headbutt</strong> to knock him off his skates!</div>
+            <div class="move-title">5. BRUTUS THE BOUNCER</div>
+            <div class="move-keys">STAGE 1 &middot; Bulldozer Charge &amp; 360&deg; Airplane Spin</div>
+            <div class="move-desc">Armoured bruiser, 90 HP &mdash; the toughest thing before the boss. Jump his charge tackle with <strong>[W]</strong>, then soften him with <strong>[W+J] Belly Flop</strong>. Get grabbed and you are going for a ride.<br><em>Fun fact: built like a brick dunny. Knocked back your ID in 1987 and would do it again tomorrow.</em></div>
+          </div>
+          <div class="move-card" style="border-color:#4b75d6;">
+            <div class="move-title">6. THE MOTORCYCLIST</div>
+            <div class="move-keys">STAGE 1 ONWARD &middot; Revs, then a flat-out drive-by pass</div>
+            <div class="move-desc">A stage boss in the 1987 original, restored. He never brawls &mdash; he revs on the spot, then charges at speed 5.6, the quickest thing in the game. <strong>Light jabs CLANG off the bike</strong> mid-charge; you need airborne or heavy (<strong>[W+K] Dropkick</strong>, <strong>[W+J] Belly Flop</strong>, <strong>[U] Bull Ram</strong>). Or just <strong>jump [W]</strong> and he goes underneath. Fair game between passes.<br><em>Fun fact: the bike is louder than it is fast, which is saying something. Has never once indicated.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">BRUNO THE STRONGMAN</div>
-            <div class="move-keys">BEHAVIOR: 100KG Barbell Whirlwind &amp; Clang</div>
-            <div class="move-desc">Invulnerable during his 360° whirlwind spin! Keep distance, then strike with <strong>[O] Donkey Kick</strong>.</div>
+            <div class="move-title">7. HOOPSTER (HOOPS #23)</div>
+            <div class="move-keys">STAGE 2 &middot; Active Dribble, Bouncing Ball, Monster Dunk</div>
+            <div class="move-desc">Towering 84px giant with a 140px reach &mdash; he can hit you from the next postcode. Jump the bouncing balls with <strong>[W]</strong>, close the gap, and bowl him over with <strong>[U] Bull Ram</strong>.<br><em>Fun fact: four metres of him and he will tell you, unprompted, that he was robbed at the draft.</em></div>
           </div>
           <div class="move-card">
-            <div class="move-title">DUKE DAVIS (FINAL BOSS)</div>
-            <div class="move-keys">BEHAVIOR: Heavy Haymakers, Dragon Kicks &amp; Enraged Aura</div>
-            <div class="move-desc">The legendary 1987 mullet vigilante. Dodge his haymakers vertically, soften with combos, and trigger UFO Super!</div>
+            <div class="move-title">8. BRUNO THE STRONGMAN</div>
+            <div class="move-keys">STAGE 2 &middot; 100KG Barbell Whirlwind</div>
+            <div class="move-desc">75 HP and <strong>invulnerable during the 360&deg; whirlwind</strong> &mdash; everything bounces except a trip. Keep your distance, wait it out, then come in behind with <strong>[O] Donkey Kick</strong>.<br><em>Fun fact: it is genuinely 100 kilos. He will let you know. Repeatedly. Unprompted. At length.</em></div>
+          </div>
+          <div class="move-card" style="border-color:#f5c200;">
+            <div class="move-title">9. DUKE DAVIS (FINAL BOSS)</div>
+            <div class="move-keys">STAGE 4 &middot; Heavy Haymakers, Dragon Kicks &amp; Enraged Aura</div>
+            <div class="move-desc">The legendary 1987 mullet vigilante, and the bloke who started all this by belting a harmless old man into a bin. Dodge his haymakers vertically, soften him with combos, then finish it with the <strong>[SPACE] UFO Tractor Beam</strong>.<br><em>Fun fact: the mullet is load-bearing. Beat him and he retires from street brawling to move to Gosford, which he insists was the plan all along.</em></div>
           </div>
         </div>
         <div class="modal-footer">
@@ -515,6 +583,7 @@
 
         <div class="victory-actions">
           <button id="btn-view-scores-victory" class="c64-btn"><span class="btn-bullet">&#9670;</span> TOP 100 HIGH SCORES</button>
+          <button id="btn-victory-credits" class="c64-btn"><span class="btn-bullet">&#9733;</span> ROLL THE CREDITS</button>
           <button id="btn-victory-restart" class="c64-btn primary-btn"><span class="btn-bullet">&#9654;</span> RETURN TO MENU</button>
         </div>
       </div>

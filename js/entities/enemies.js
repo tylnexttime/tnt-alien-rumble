@@ -1,5 +1,5 @@
 /**
- * TNT ALIEN RUMBLE - ENEMY AI SYSTEM (AMIGA 500 ENHANCED EDITION)
+ * TNT ALIEN RUMBLE - ENEMY AI SYSTEM
  * Distinct, highly detailed enemy behaviors from Bop'n Rumble:
  * - Mohawk Punks (Switchblade & Dropkicks)
  * - Handbag Grannies (Heavy Purse Smash, Boomerang Throw, Umbrella Shield Block & Helicopter Escape)
@@ -78,7 +78,7 @@ class Enemy {
         this.maxHp = 50;
         this.hp = 50;
         this.width = 30;
-        this.height = 84; // Towering Amiga proportion
+        this.height = 84; // Towering proportion — the 4-metre basketballer from the 1987 original
         this.speed = 2.2;
         this.scoreValue = 500;
         this.attackRangeX = 140;
@@ -105,6 +105,18 @@ class Enemy {
         this.scoreValue = 450;
         this.attackRangeX = 48;
         this.attackDamage = 12;
+        break;
+
+      case 'biker':
+        // Fast, heavy, and he does NOT stop to brawl — he does passes.
+        this.maxHp = 55;
+        this.hp = 55;
+        this.width = 46;
+        this.height = 48;
+        this.speed = 5.6;          // fastest thing in the game
+        this.scoreValue = 700;
+        this.attackRangeX = 60;
+        this.attackDamage = 20;
         break;
 
       case 'strongman':
@@ -134,6 +146,18 @@ class Enemy {
     }
 
     // 2. Strongman Barbell Whirlwind Invulnerability
+    // Charging on two wheels: light jabs glance off the bike. You need an
+    // airborne or heavy move — the jump-kick the original taught you.
+    if (this.state === 'charging' && !knockAir) {
+      this.hp += 0;
+      if (window.particles) {
+        window.particles.spawnHitSparks(this.x, this.y, 28, 8, '#8cb2ff');
+        window.particles.spawnComicText(this.x, this.y, 46, "CLANG!", "#8cb2ff");
+      }
+      if (window.sfx && window.sfx.playBarbellClang) window.sfx.playBarbellClang();
+      return;
+    }
+
     if (this.state === 'barbell_spin' && !isTrip) {
       if (window.sfx) window.sfx.playBarbellClang();
       if (window.particles) {
@@ -233,6 +257,13 @@ class Enemy {
         window.particles.spawnHitSparks(this.x, this.y, 20, 10, '#00f7ff');
         window.particles.spawnComicText(this.x, this.y, 28, "WIPEOUT!", "#00f7ff");
         if (window.sfx) window.sfx.playWhoosh();
+        break;
+
+      case 'biker':
+        window.particles.spawnDust(this.x, this.y, 22);
+        window.particles.spawnHitSparks(this.x, this.y, 22, 14, '#8cb2ff');
+        window.particles.spawnComicText(this.x, this.y, 30, "STACKED IT!", "#8cb2ff");
+        if (window.sfx) window.sfx.playBulldozer();
         break;
 
       case 'strongman':
@@ -424,6 +455,57 @@ class Enemy {
         this.state = 'walk';
         this.hasFiredAttack = false;
         this.attackCooldown = 50 + Math.random() * 30;
+      }
+      return;
+    }
+
+    // Motorcyclist — rev on the spot as a telegraph, then a flat-out pass.
+    if (this.state === 'revving') {
+      this.stateTimer += dt;
+      this.vx = 0;
+      if (Math.floor(this.stateTimer) % 6 === 0 && window.particles) {
+        window.particles.spawnDust(this.x - this.facing * 22, this.y, 5);
+      }
+      if (this.stateTimer > 34) {
+        this.state = 'charging';
+        this.stateTimer = 0;
+        this.hasFiredAttack = false;
+        if (window.sfx) window.sfx.playBulldozer();
+      }
+      return;
+    }
+
+    if (this.state === 'charging') {
+      this.stateTimer += dt;
+      this.vx = this.facing * this.speed;
+      if (Math.floor(this.stateTimer) % 4 === 0 && window.particles) {
+        window.particles.spawnDust(this.x - this.facing * 26, this.y, 6);
+      }
+
+      if (!this.hasFiredAttack && player.isAlive) {
+        const dist = Math.abs(this.x - player.x);
+        const depthDist = Math.abs(this.y - player.y);
+        if (dist <= 34 && depthDist <= 26) {
+          this.hasFiredAttack = true;
+          if (player.z > 26) {
+            // Jump and he goes underneath — the counter the original taught.
+            if (window.particles) {
+              window.particles.spawnComicText(player.x, player.y, player.z + 40, "CLEARED HIM!", "#39ff14");
+            }
+          } else {
+            if (!this.isTrainingDummy) player.takeDamage(this.attackDamage, 10, true);
+            if (window.sfx) window.sfx.playBulldozer();
+            if (window.camera) window.camera.shake(10);
+          }
+        }
+      }
+
+      if (this.stateTimer > 95) {
+        // End of the pass: wheel around and line up another one.
+        this.state = 'walk';
+        this.facing *= -1;
+        this.hasFiredAttack = false;
+        this.attackCooldown = 45 + Math.random() * 35;
       }
       return;
     }
@@ -635,6 +717,15 @@ class Enemy {
           if (window.sfx) window.sfx.playSkateWhir();
           return;
         }
+      } else if (this.type === 'biker') {
+        // He never brawls. Anywhere in range of a run-up, he lines one up.
+        if (dist >= 40 && dist <= 320 && depthDist <= 30) {
+          this.state = 'revving';
+          this.stateTimer = 0;
+          this.hasFiredAttack = false;
+          if (window.sfx) window.sfx.playSkateWhir();
+          return;
+        }
       } else if (this.type === 'strongman') {
         if (dist >= 50 && dist <= 180 && depthDist <= 28 && Math.random() < 0.55) {
           this.state = 'barbell_spin';
@@ -733,6 +824,8 @@ class Enemy {
       window.spriteRenderer.drawSkater(ctx, this.state, this.facing, this.animTimer);
     } else if (this.type === 'strongman') {
       window.spriteRenderer.drawStrongman(ctx, this.state, this.facing, this.animTimer);
+    } else if (this.type === 'biker') {
+      window.spriteRenderer.drawBiker(ctx, this.state, this.facing, this.animTimer);
     }
 
     // Render Stun Stars if dazed

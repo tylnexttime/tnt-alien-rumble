@@ -1,6 +1,6 @@
 /**
- * TNT ALIEN RUMBLE - AMIGA 500 STAGE DEFINITIONS & ARCHITECTURAL ENGINE
- * Deluxe Paint IV quality 2.5D building facades, copper sky gradients,
+ * TNT ALIEN RUMBLE - C64 STAGE DEFINITIONS & ARCHITECTURAL ENGINE
+ * Chunky 2.5D building facades, raster sky gradients,
  * running-bond brickwork, 3D striped awnings, wrought-iron fire escapes,
  * dripping A/C units, glowing neon signs, and sewer steam grates.
  */
@@ -41,7 +41,8 @@ const STAGES_DATA = [
       { triggerX: 100, enemies: [{ type: 'punk', x: 750, y: 360 }, { type: 'skater', x: 820, y: 430 }] },
       { triggerX: 450, enemies: [{ type: 'dog', x: 1100, y: 400 }, { type: 'punk', x: 1180, y: 350 }, { type: 'granny', x: 1250, y: 460 }] },
       { triggerX: 950, enemies: [{ type: 'dog', x: 1550, y: 360 }, { type: 'skater', x: 1600, y: 460 }, { type: 'punk', x: 1650, y: 410 }] },
-      { triggerX: 1450, enemies: [{ type: 'granny', x: 2050, y: 370 }, { type: 'skater', x: 2100, y: 440 }, { type: 'bouncer', x: 2200, y: 400 }] }
+      { triggerX: 1450, enemies: [{ type: 'granny', x: 2050, y: 370 }, { type: 'skater', x: 2100, y: 440 }, { type: 'bouncer', x: 2200, y: 400 }] },
+      { triggerX: 2150, enemies: [{ type: 'biker', x: 2500, y: 410 }] }
     ]
   },
 
@@ -78,7 +79,8 @@ const STAGES_DATA = [
       { triggerX: 100, enemies: [{ type: 'basketballer', x: 700, y: 380 }, { type: 'dog', x: 780, y: 440 }] },
       { triggerX: 500, enemies: [{ type: 'basketballer', x: 1150, y: 360 }, { type: 'strongman', x: 1200, y: 430 }, { type: 'dog', x: 1260, y: 400 }] },
       { triggerX: 1000, enemies: [{ type: 'skater', x: 1600, y: 350 }, { type: 'basketballer', x: 1660, y: 420 }, { type: 'strongman', x: 1720, y: 460 }] },
-      { triggerX: 1500, enemies: [{ type: 'granny', x: 2100, y: 360 }, { type: 'basketballer', x: 2160, y: 440 }, { type: 'bouncer', x: 2250, y: 400 }] }
+      { triggerX: 1500, enemies: [{ type: 'granny', x: 2100, y: 360 }, { type: 'basketballer', x: 2160, y: 440 }, { type: 'bouncer', x: 2250, y: 400 }] },
+      { triggerX: 2200, enemies: [{ type: 'biker', x: 2560, y: 370 }, { type: 'dog', x: 2620, y: 450 }] }
     ]
   },
 
@@ -114,7 +116,8 @@ const STAGES_DATA = [
       { triggerX: 100, enemies: [{ type: 'bouncer', x: 700, y: 390 }, { type: 'strongman', x: 760, y: 450 }] },
       { triggerX: 550, enemies: [{ type: 'bouncer', x: 1200, y: 360 }, { type: 'granny', x: 1260, y: 450 }, { type: 'skater', x: 1320, y: 410 }] },
       { triggerX: 1100, enemies: [{ type: 'strongman', x: 1700, y: 370 }, { type: 'basketballer', x: 1760, y: 450 }, { type: 'dog', x: 1820, y: 400 }] },
-      { triggerX: 1650, enemies: [{ type: 'bouncer', x: 2300, y: 360 }, { type: 'strongman', x: 2360, y: 450 }, { type: 'punk', x: 2420, y: 410 }] }
+      { triggerX: 1650, enemies: [{ type: 'bouncer', x: 2300, y: 360 }, { type: 'strongman', x: 2360, y: 450 }, { type: 'punk', x: 2420, y: 410 }] },
+      { triggerX: 2300, enemies: [{ type: 'biker', x: 2650, y: 370 }, { type: 'biker', x: 2720, y: 450 }] }
     ]
   },
 
@@ -167,7 +170,7 @@ class StageRenderer {
     const s = camera.scale || 1.0;
     const effW = w / s;
 
-    // 1. Amiga 500 Copper Sky Gradient (OCS Raster Color Bars)
+    // 1. Raster Sky Gradient (VIC-II raster-bar homage)
     const skyGrad = ctx.createLinearGradient(0, 0, 0, 310 * s);
     const colors = stageData.skyGradient || ["#0a081e", "#1b143a", "#382348", "#6a3048", "#a84838"];
     const step = 1 / (colors.length - 1);
@@ -227,7 +230,7 @@ class StageRenderer {
     }
     ctx.restore();
 
-    // 4. Mid-Ground 2.5D Buildings (Amiga 500 Textured Architecture)
+    // 4. Mid-Ground 2.5D Buildings (Textured Architecture)
     camera.applyTransform(ctx);
 
     const isInfinite = !!(window.cutscenes && window.cutscenes.inPracticeMode) || camera.isInfinite;
@@ -239,12 +242,12 @@ class StageRenderer {
         for (let chunkIdx = curChunk - 1; chunkIdx <= curChunk + 1; chunkIdx++) {
           const chunkOffset = chunkIdx * loopChunk;
           for (const b of stageData.buildings) {
-            this.drawAmigaBuilding(ctx, b, chunkOffset);
+            this.drawC64Building(ctx, b, chunkOffset);
           }
         }
       } else {
         for (const b of stageData.buildings) {
-          this.drawAmigaBuilding(ctx, b, 0);
+          this.drawC64Building(ctx, b, 0);
         }
       }
     }
@@ -293,7 +296,7 @@ class StageRenderer {
     ctx.fillRect(groundStartX, 403, groundWidth, 2); // Curb shadow
     ctx.globalAlpha = 1.0;
 
-    // Lower Asphalt Street with Amiga asphalt grain
+    // Lower Asphalt Street with asphalt grain
     ctx.fillStyle = stageData.streetColor || "#1e222a";
     ctx.fillRect(groundStartX, 405, groundWidth, 160);
 
@@ -331,8 +334,8 @@ class StageRenderer {
     }
   }
 
-  // Draw High-Detail Amiga 500 Textured Building Facade
-  drawAmigaBuilding(ctx, b, xOffset = 0) {
+  // Draw High-Detail Textured Building Facade
+  drawC64Building(ctx, b, xOffset = 0) {
     const drawX = b.x + xOffset;
     const topY = 300 - b.h;
 

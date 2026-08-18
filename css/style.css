@@ -1569,3 +1569,50 @@ html, body {
   border-color: #ffd700;
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
 }
+
+/* ===== END CREDITS =====================================================
+   The intro crawl animates `top` from 95% to -220%, but that percentage is of
+   a very tall containing block, not the viewport — measured, it yields ~13,000px
+   of travel. Reusing it made the credits either race past or leave a minute of
+   blank screen. So the credits pin `top` and drive the whole thing from
+   translateY, where the distance is in pixels we control:
+     travel = 100vh (start below the fold) + 4400px  =~ 5300px on a 900px viewport
+     55s of content at ~86 px/s, clearing with a few seconds to spare at 62s. */
+.credits-crawl {
+  top: 0 !important;
+  animation: credits-crawl 62s linear forwards !important;
+}
+
+@keyframes credits-crawl {
+  0% {
+    transform: rotateX(25deg) translateY(100vh);
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(25deg) translateY(-4400px);
+    opacity: 0;
+  }
+}
+
+.credits-rule {
+  color: #39ff14;
+  letter-spacing: 0.4em;
+  margin: 2.2em 0 1.6em;
+}
+
+#credits-crawl-screen .intro-crawl-content p em {
+  color: #aaffee;
+  font-style: italic;
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.92em;
+  line-height: 1.7;
+}
+
+#credits-crawl-screen .intro-crawl-content p strong {
+  color: #eeee77;
+  letter-spacing: 0.06em;
+}
