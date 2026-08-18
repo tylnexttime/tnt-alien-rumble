@@ -401,6 +401,38 @@ class SidSynthesizer {
         'kick', 'snare', 'kick', 'snare', 'kick', 'kick', 'snare', 'snare'
       ]
     };
+
+    // END CREDITS — C64 demo-tune style: fast minor-key arpeggio runs over a
+    // driving octave bass, the way a Hubbard/Galway loader tune rolls. A minor
+    // verse, lifts to F/C for the chorus, drops back. Built to loop forever
+    // behind a scrolling cast list without wearing out.
+    this.tracks.credits = {
+      bpm: 138,
+      lead: [
+        'A-4', 'C-5', 'E-5', 'A-5', 'E-5', 'C-5', 'A-4', 'E-4',
+        'G-4', 'B-4', 'D-5', 'G-5', 'D-5', 'B-4', 'G-4', 'D-4',
+        'F-4', 'A-4', 'C-5', 'F-5', 'C-5', 'A-4', 'F-4', 'C-4',
+        'E-4', 'G#4', 'B-4', 'E-5', 'B-4', 'G#4', 'E-4', 'B-3'
+      ],
+      leadArps: [
+        [0, 3, 7, 12], [0, 3, 7, 12], [0, 3, 7, 12], [0, 3, 7, 12],
+        [0, 4, 7, 12], [0, 4, 7, 12], [0, 4, 7, 12], [0, 4, 7, 12],
+        [0, 4, 7, 12], [0, 4, 7, 12], [0, 4, 9, 12], [0, 4, 9, 12],
+        [0, 4, 7, 11], [0, 4, 7, 11], [0, 3, 7, 10], [0, 3, 7, 12]
+      ],
+      bass: [
+        'A-2', 'A-3', 'A-2', 'E-3', 'A-2', 'A-3', 'C-3', 'E-3',
+        'G-2', 'G-3', 'G-2', 'D-3', 'G-2', 'G-3', 'B-2', 'D-3',
+        'F-2', 'F-3', 'F-2', 'C-3', 'F-2', 'F-3', 'A-2', 'C-3',
+        'E-2', 'E-3', 'E-2', 'B-2', 'E-2', 'G#2', 'B-2', 'E-3'
+      ],
+      drums: [
+        'kick', 'hihat', 'hihat', 'snare', 'kick', 'hihat', 'hihat', 'snare',
+        'kick', 'hihat', 'hihat', 'snare', 'kick', 'hihat', 'snare', 'hihat',
+        'kick', 'hihat', 'hihat', 'snare', 'kick', 'hihat', 'hihat', 'snare',
+        'kick', 'hihat', 'snare', 'hihat', 'kick', 'snare', 'kick', 'snare'
+      ]
+    };
   }
 
   // Play a named music track in loop

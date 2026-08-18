@@ -1,6 +1,6 @@
-# TNT ALIEN RUMBLE - Comprehensive Technical Documentation (v2.0)
+# TNT ALIEN RUMBLE - Comprehensive Technical Documentation (v3.0)
 
-This document provides a deep architectural and implementation breakdown of **TNT Alien Rumble: The Vengeance of Gleep-Glorp (v2.0)**, engineered as a browser-based beat 'em up inspired by Melbourne House / Beam Software's 1987 classic *Bop'n Rumble* (*Street Hassle* / *Bad Street Brawler*), elevated to **Commodore Amiga 500 (OCS 32-Color / Deluxe Paint IV)** graphical fidelity.
+This document provides a deep architectural and implementation breakdown of **TNT Alien Rumble: The Vengeance of Gleep-Glorp (v3.0)**, engineered as a browser-based beat 'em up inspired by Beam Software / Melbourne House's 1987 **Commodore 64** classic *Bop'n Rumble* (*Street Hassle* in Europe, *Bad Street Brawler* on the NES). It is an homage rather than an emulation: the renderer uses a 45-colour palette organised as nine four-tone material ramps, deliberately wider than the C64's fixed VIC-II 16.
 
 ---
 
@@ -33,11 +33,11 @@ graph TD
         Enemies[enemies.js - 7 Enemy AI Archetypes]
         Boss[boss.js - Duke Davis Multi-Phase Boss AI]
         Props[props.js - Street Props & Projectiles]
-        Sprites[sprite-renderer.js - Amiga 500 OCS Vector Sprites]
+        Sprites[sprite-renderer.js - Vector Sprites, 4-tone ramps]
     end
 
     subgraph Stages_Layer
-        StageData[stage-data.js - Amiga Architectural Engine]
+        StageData[stage-data.js - Architectural Engine]
         Cutscenes[cutscenes.js - Intro Crawl, Dojo & Endings]
     end
 
@@ -87,11 +87,11 @@ Entities in flight mode (such as Handbag Granny's helicopter ascent) set `isFlyi
 
 ---
 
-## 3. Amiga 500 Graphics Pipeline & OCS Palette Architecture
+## 3. Graphics Pipeline & Palette Architecture
 
-The sprite renderer (`SpriteRenderer` in `js/entities/sprite-renderer.js`) implements a 32-color shading pipeline based on the Commodore Amiga OCS (Original Chip Set) 12-bit RGB444 color specification.
+The sprite renderer (`SpriteRenderer` in `js/entities/sprite-renderer.js`) implements a chunky four-tone shading pipeline in the spirit of the C64 original. The palette (`this.pal`) holds **48 named entries resolving to 45 distinct colours** — nine material families of highlight/mid/shadow/deep, plus metal at three steps and nine singletons. This is wider than the VIC-II's 16 by choice; see the fidelity note in the README.
 
-### Shading Ramps (Deluxe Paint IV Style)
+### Shading Ramps
 * **Alien Bio-Plasma**: `#e4edf2` (highlight) $\to$ `#b2c2cc` (midtone) $\to$ `#7d919e` (shadow) $\to$ `#4c5d6a` (dark outline) with glowing `#39ff14` neural veins and `#00f0ff` plasma meter.
 * **Human Skin Tones (Caucasian / Duke / Granny / Punk / Bouncer)**: `#ffe2cf` $\to$ `#f2b58d` $\to$ `#c47a4d` $\to$ `#7a3e20`.
 * **Bronze Skin Tones (Hoops #23)**: `#c68d63` $\to$ `#8e542e` $\to$ `#5c3116` $\to$ `#331607`.
@@ -103,9 +103,9 @@ The sprite renderer (`SpriteRenderer` in `js/entities/sprite-renderer.js`) imple
 
 ## 4. Building Facade & Environmental Architecture Engine
 
-Implemented in `StageRenderer` (`js/stages/stage-data.js`), the architectural renderer proceduralizes multi-layered Amiga 500 city environments:
+Implemented in `StageRenderer` (`js/stages/stage-data.js`), the architectural renderer proceduralizes multi-layered city environments:
 
-1. **Copper Sky Raster Gradient Bars**: Smooth vertical linear gradients calculating multi-stop sky colors transitioning from deep twilight indigo to fiery sunset amber.
+1. **Raster Sky Gradient Bars** (the C64 raster-interrupt trick): Smooth vertical linear gradients calculating multi-stop sky colors transitioning from deep twilight indigo to fiery sunset amber.
 2. **Parallax Far Skyline**: Distant skyscrapers with illuminated window grids and blinking red aircraft warning lights ($x \cdot 0.15$ parallax velocity).
 3. **Running-Bond Brickwork**: Procedural individual brick mortar grid ($16 \times 8\text{px}$ staggered blocks) with dark mortar lines, chipped masonry, and base grime weathering.
 4. **Architectural Cornices**: Multi-tiered Victorian stone cornices with dentil blocks and cast drop shadows.

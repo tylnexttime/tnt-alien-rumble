@@ -47,6 +47,22 @@ class DukeBoss {
     this.dialogueTimer = duration;
   }
 
+  // Duke's exit. Every other fighter gets a comic despawn cry; the boss had
+  // none, so he simply lay on the rooftop until the victory card covered him.
+  triggerSendOffEffect() {
+    this.dialogue = "";
+    if (window.particles) {
+      window.particles.spawnDust(this.x, this.y, 26);
+      window.particles.spawnHitSparks(this.x, this.y, 30, 16, '#f5c200');
+      window.particles.spawnComicText(this.x, this.y, 42, "GOSFORD!", "#f5c200");
+    }
+    if (window.sfx) {
+      if (window.sfx.playWhoosh) window.sfx.playWhoosh();
+      if (window.sfx.playTrip) window.sfx.playTrip();
+    }
+    if (window.camera && window.camera.shake) window.camera.shake(6);
+  }
+
   takeDamage(amount, knockback = 3, knockAir = false) {
     if (!this.isAlive) return;
 
@@ -87,6 +103,8 @@ class DukeBoss {
     this.vz = 7;
     this.vx = -this.facing * 6;
     this.despawnTimer = 300; // 5.0 seconds
+    this.sendOffBeat = 0;
+    this.despawnTriggered = false;
 
     this.say("UUGHH... MY PROPORTIONS... MELBOURNE HOUSE...!");
 
@@ -220,11 +238,32 @@ class DukeBoss {
 
     if (!this.isAlive) {
       this.state = 'knockdown';
-      if (this.isTrainingDummy) {
-        this.despawnTimer -= dt;
-        if (this.despawnTimer <= 0) {
-          this.isDespawned = true;
+
+      // The countdown used to run for the training dummy ONLY, so the real Duke
+      // lay on the rooftop forever and never got a send-off. Now both tick.
+      this.despawnTimer -= dt;
+
+      if (!this.isTrainingDummy) {
+        // Staged last words. updateAI() (where the dialogue timer normally
+        // decrements) returns early once he is down, so each line simply holds
+        // until the next beat replaces it.
+        const elapsed = 300 - this.despawnTimer;
+        if (elapsed > 80 && this.sendOffBeat === 0) {
+          this.sendOffBeat = 1;
+          this.say("OOOUUCH! I'VE HAD ENOUGH.", 9999);
+        } else if (elapsed > 175 && this.sendOffBeat === 1) {
+          this.sendOffBeat = 2;
+          this.say("I'M MOVING TO GOSFORD.", 9999);
         }
+
+        if (this.despawnTimer <= 22 && !this.despawnTriggered) {
+          this.despawnTriggered = true;
+          this.triggerSendOffEffect();
+        }
+      }
+
+      if (this.despawnTimer <= 0) {
+        this.isDespawned = true;
       }
       window.physics.updateEntity(this, dt);
       return;
@@ -242,7 +281,7 @@ class DukeBoss {
   render(ctx, camera) {
     if (this.isDespawned) return;
 
-    if (this.isTrainingDummy && !this.isAlive && this.despawnTimer <= 60 && Math.floor(this.despawnTimer / 4) % 2 === 0) {
+    if (!this.isAlive && this.despawnTimer <= 60 && Math.floor(this.despawnTimer / 4) % 2 === 0) {
       return;
     }
     const s = camera.scale || 1.0;

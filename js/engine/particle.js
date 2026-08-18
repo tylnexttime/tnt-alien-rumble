@@ -1,5 +1,5 @@
 /**
- * TNT ALIEN RUMBLE - PARTICLE & COMIC FX ENGINE (AMIGA 500 EDITION)
+ * TNT ALIEN RUMBLE - PARTICLE & COMIC FX ENGINE
  * Handles comic action texts ("BOP!", "POW!", "SLAM DUNK!"), hit sparks,
  * dust clouds, sewer grate steam plumes, A/C condensation water drips,
  * sonic bark shockwave rings, coin & denture scatters, and UFO cosmic tractor beams.

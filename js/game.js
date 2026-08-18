@@ -19,6 +19,10 @@ class GameEngine {
     this.props = [];
     this.pickups = [];
     this.projectiles = [];
+    this.hazards = [];
+    this.dwarfTimer = 300 + Math.floor(Math.random() * 360);
+    this.hazards = [];      // trench-dwarf + his bombs
+    this.dwarfTimer = 420;  // frames until the next dwarf wanders on
 
     // Stage / Wave State
     this.currentWaveIndex = 0;
@@ -311,6 +315,30 @@ class GameEngine {
       };
     }
 
+    // ROLL THE CREDITS, from the victory screen.
+    const btnVictoryCredits = document.getElementById('btn-victory-credits');
+    if (btnVictoryCredits) {
+      btnVictoryCredits.onclick = () => {
+        // A qualifying score that has NOT been submitted yet must not be lost
+        // behind the credits: bank it under the name currently in the box
+        // (defaulting to GLEEP!) before the crawl covers the screen.
+        const entry = document.getElementById('victory-highscore-entry');
+        if (entry && !entry.classList.contains('hidden')) {
+          const nameEl = document.getElementById('input-victory-name');
+          const name = ((nameEl && nameEl.value) || 'GLEEP!').trim().slice(0, 6).toUpperCase() || 'GLEEP!';
+          window.highScores.addScore(name, this.player.score, 'VICTORY');
+          this.highScore = window.highScores.getTopScore();
+          const menuScore = document.getElementById('menu-high-score');
+          if (menuScore) menuScore.textContent = this.formatScore(this.highScore);
+          entry.classList.add('hidden');
+        }
+
+        const victoryScreen = document.getElementById('victory-screen');
+        if (victoryScreen) victoryScreen.classList.add('hidden');
+        window.cutscenes.startEndCredits(() => this.showMainMenu());
+      };
+    }
+
     // Set initial menu score
     if (window.highScores) {
       this.highScore = window.highScores.getTopScore();
@@ -470,6 +498,35 @@ class GameEngine {
     this.pickups.push(new PickupItem(x, y, type));
   }
 
+  // The trench-coat dwarf from Bop'n Rumble (1987): wanders on, lobs you
+  // something, wanders off. Early stages he brings a heart; from stage 3 on
+  // it is increasingly a bomb instead — which is the original's gamble.
+  updateDwarfSpawner(dt = 1) {
+    if (window.cutscenes && window.cutscenes.inPracticeMode) return;
+    if (!this.player || !this.player.isAlive) return;
+    if (this.hazards.some(h => h instanceof TrenchDwarf)) return;
+
+    this.dwarfTimer -= dt;
+    if (this.dwarfTimer > 0) return;
+    this.dwarfTimer = 900 + Math.floor(Math.random() * 600);
+
+    const stage = this.currentStageIndex || 0;
+    const bombChance = stage < 2 ? 0 : Math.min(0.65, 0.2 + (stage - 2) * 0.15);
+    const givesBomb = Math.random() < bombChance;
+
+    const fromLeft = Math.random() < 0.5;
+    const cam = window.camera;
+    const camX = cam ? cam.x : 0;
+    // The VISIBLE world width, not the backing-canvas width: at 2X zoom the
+    // camera shows viewportWidth/scale world px, so using 960 raw would drop
+    // him ~520px off the right edge and he'd throw the heart off-screen.
+    const viewW = cam ? cam.viewportWidth / (cam.scale || 1) : 960;
+    const x = fromLeft ? camX - 40 : camX + viewW + 40;
+    const y = this.player.y + (Math.random() * 40 - 20);
+
+    this.hazards.push(new TrenchDwarf(x, y, fromLeft, givesBomb));
+  }
+
   onEnemyDefeated(enemy) {
     this.enemiesDefeatedInStage++;
   }
@@ -492,7 +549,10 @@ class GameEngine {
           if (input) setTimeout(() => input.focus(), 500);
         }
       }
-    }, 2200);
+    }, 7200);   // was 2200. Duke's send-off runs ~4.6s (last words -> poof) and the
+                //  victory card used to cover him before the punchline; the extra
+                //  ~2.2s after he vanishes is deliberate breathing room — the rooftop
+                //  is yours, and [T] Alien Taunt still works.
   }
 
   onPlayerDeath() {
@@ -706,6 +766,11 @@ class GameEngine {
       }
     }
 
+    // 2b. Bomb defusal — duck over it (Low Shin Grab), as in the 1987 original
+    for (const h of this.hazards) {
+      if (h.tryDefuse && this.player.isAlive) h.tryDefuse(this.player);
+    }
+
     // 3. Enemy Projectiles hits on Player (Basketballs & Handbags)
     for (const proj of this.projectiles) {
       if (!proj.isAlive || !this.player.isAlive) continue;
@@ -793,6 +858,10 @@ class GameEngine {
       for (const proj of this.projectiles) proj.update(dt);
       this.projectiles = this.projectiles.filter(p => p.isAlive);
 
+      for (const h of this.hazards) h.update(dt);
+      this.hazards = this.hazards.filter(h => h.isAlive);
+      this.updateDwarfSpawner(dt);
+
       // Update Waves & Hit Collisions
       this.updateWaves();
       this.updateCombatCollisions();
@@ -858,6 +927,8 @@ class GameEngine {
       for (const item of this.pickups) renderList.push(item);
       // Add projectiles (Basketballs, Handbags)
       for (const proj of this.projectiles) renderList.push(proj);
+      // Add the trench dwarf and any live bombs
+      for (const h of this.hazards) renderList.push(h);
       // Add enemies
       for (const enemy of this.enemies) renderList.push(enemy);
       // Add boss
